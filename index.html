@@ -3,26 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CodeBuddy - Personal Coding Tutor</title>
+  <title>CodeBuddy - Multi-Language Coding Tutor</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: #0f172a; color: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 1rem; }
     
     .app-container { 
       width: 100%; 
-      max-width: 620px; 
+      max-width: 680px; 
       background: #1e293b; 
       border-radius: 12px; 
       display: flex; 
       flex-direction: column; 
-      height: 680px; 
+      height: 720px; 
       box-shadow: 0 10px 25px rgba(0,0,0,0.4); 
       overflow: hidden; 
       border: 1px solid #334155; 
     }
     
     .app-header { 
-      padding: 0.85rem 1.2rem; 
+      padding: 0.75rem 1.2rem; 
       background: #334155; 
       display: flex; 
       align-items: center; 
@@ -33,9 +33,20 @@
     .header-left {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.75rem;
       font-weight: 600;
       font-size: 1.05rem;
+    }
+
+    .lang-selector {
+      background: #0f172a;
+      color: #38bdf8;
+      border: 1px solid #0284c7;
+      border-radius: 6px;
+      padding: 0.3rem 0.5rem;
+      font-size: 0.8rem;
+      outline: none;
+      cursor: pointer;
     }
 
     .header-right {
@@ -113,7 +124,7 @@
     .msg { 
       padding: 0.75rem 1rem; 
       border-radius: 8px; 
-      max-width: 88%; 
+      max-width: 90%; 
       line-height: 1.5; 
       font-size: 0.95rem; 
     }
@@ -130,10 +141,17 @@
     }
     .code-block-header {
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-between;
+      align-items: center;
       padding: 0.35rem 0.6rem;
       background: #0b1329;
       border-bottom: 1px solid #1e293b;
+    }
+    .code-lang-tag {
+      font-size: 0.72rem;
+      color: #94a3b8;
+      font-family: monospace;
+      text-transform: uppercase;
     }
     .transfer-btn {
       background: #38bdf8;
@@ -267,7 +285,7 @@
     }
     textarea#codeEditor {
       width: 100%;
-      height: 180px;
+      height: 200px;
       background: #1e293b;
       border: 1px solid #334155;
       border-radius: 8px;
@@ -299,6 +317,12 @@
     <div class="app-header">
       <div class="header-left">
         <span>🤖 CodeBuddy</span>
+        <select class="lang-selector" id="languageSelect" onchange="changeLanguage()">
+          <option value="python">🐍 Python</option>
+          <option value="javascript">⚡ JavaScript</option>
+          <option value="cpp">⚙️ C++</option>
+          <option value="java">☕ Java</option>
+        </select>
       </div>
       <div class="header-right">
         <span class="score-badge" id="scoreDisplay">Score: 0</span>
@@ -317,16 +341,10 @@
     <div class="tab-content active" id="chatTab">
       <div class="chat-messages" id="messages"></div>
 
-      <div class="chip-container">
-        <span class="chip quiz-highlight" onclick="startQuiz()">🎯 Start Quiz</span>
-        <span class="chip" onclick="askTopic('What is a variable?')">Variables</span>
-        <span class="chip" onclick="askTopic('How does a loop work?')">Loops</span>
-        <span class="chip" onclick="askTopic('Show me a function')">Functions</span>
-        <span class="chip" onclick="askTopic('How do lists work?')">Lists / Arrays</span>
-      </div>
+      <div class="chip-container" id="chipContainer"></div>
 
       <div class="chat-input-area">
-        <input type="text" id="userInput" placeholder="Ask a question..." autocomplete="off" />
+        <input type="text" id="userInput" placeholder="Ask a programming question..." autocomplete="off" />
         <button id="sendBtn">Send</button>
       </div>
     </div>
@@ -335,18 +353,17 @@
     <div class="tab-content" id="playgroundTab">
       <div class="playground-area">
         <div class="editor-label">
-          <span>JavaScript Scratchpad (runs in browser)</span>
+          <span id="runnerLabel">Scratchpad (Interactive JavaScript Execution)</span>
           <button id="runBtn" onclick="runCode()">▶ Run Code</button>
         </div>
-        <textarea id="codeEditor">// Write short code snippets here to test them!
-let total = 0;
-for (let i = 1; i <= 5; i++) {
-  total += i;
+        <textarea id="codeEditor">// Write and test JavaScript or inspect logic here!
+let languages = ["Python", "JavaScript", "C++", "Java"];
+for (let lang of languages) {
+  console.log("Mastering:", lang);
 }
-console.log("Sum 1 to 5:", total);
 </textarea>
         <div class="editor-label">Output Console:</div>
-        <div class="console-output" id="consoleOutput">Run code above to see output here...</div>
+        <div class="console-output" id="consoleOutput">Click 'Run Code' above to execute snippets...</div>
       </div>
     </div>
 
@@ -359,69 +376,217 @@ console.log("Sum 1 to 5:", total);
     const scoreDisplay = document.getElementById("scoreDisplay");
     const consoleOutput = document.getElementById("consoleOutput");
     const codeEditor = document.getElementById("codeEditor");
+    const languageSelect = document.getElementById("languageSelect");
+    const chipContainer = document.getElementById("chipContainer");
 
     const STORAGE_KEY_CHAT = "codebuddy_chat_history";
     const STORAGE_KEY_SCORE = "codebuddy_score";
+    const STORAGE_KEY_LANG = "codebuddy_selected_lang";
+
+    let currentLang = localStorage.getItem(STORAGE_KEY_LANG) || "python";
+    languageSelect.value = currentLang;
 
     let score = parseInt(localStorage.getItem(STORAGE_KEY_SCORE)) || 0;
     scoreDisplay.textContent = `Score: ${score}`;
 
-    const codeSnippets = {
-      variable: 'let greeting = "Hello, World!";\nlet points = 50;\nconsole.log(greeting + " Points: " + points);',
-      loop: 'for (let i = 1; i <= 4; i++) {\n  console.log("Iteration number: " + i);\n}',
-      function: 'function calculateSquare(num) {\n  return num * num;\n}\n\nconsole.log("Square of 6:", calculateSquare(6));',
-      list: 'let skills = ["Python", "JavaScript", "SQL"];\nskills.push("Git");\nconsole.log("First item:", skills[0]);\nconsole.log("Full list:", skills);'
-    };
+    // Comprehensive multi-language library
+    const languageDatabase = {
+      python: {
+        name: "Python",
+        chips: ["Variables & Types", "Loops & Comprehensions", "Functions & Lambdas", "Lists & Dictionaries", "Classes & OOP"],
+        snippets: {
+          variable: `# Python dynamically determines types\nuser_id = 101\nlearning_rate = 0.001\nusername = "Tanishk"\nis_active = True\nprint(f"User: {username} | ID: {user_id} | Rate: {learning_rate}")`,
+          loop: `# Standard for-loop and List Comprehension\nsquares = [x**2 for x in range(1, 6)]\nprint("Squares:", squares)\n\nfor idx, val in enumerate(squares):\n    print(f"Index {idx} => {val}")`,
+          function: `# Keyword arguments and Lambda function\ndef calculate_accuracy(correct, total=100):\n    return (correct / total) * 100\n\nsquare = lambda x: x * x\nprint(f"Accuracy: {calculate_accuracy(88)}%")\nprint(f"Lambda 9^2: {square(9)}")`,
+          datastructure: `# Python Lists & Dictionaries\nmodel_config = {\n    "architecture": "CNN",\n    "epochs": 25,\n    "layers": [64, 128, 256]\n}\nmodel_config["layers"].append(512)\nprint("Config:", model_config)`,
+          oop: `# Object-Oriented Programming in Python\nclass ModelEvaluator:\n    def __init__(self, name):\n        self.name = name\n    \n    def evaluate(self, metric):\n        return f"{self.name} scored {metric} on F1-Score"\n\neval_instance = ModelEvaluator("ResNet50")\nprint(eval_instance.evaluate(0.94))`
+        },
+        explanations: {
+          variable: "Python features **dynamic typing**—you don't declare types explicitly. Variables point directly to memory objects.",
+          loop: "Python supports standard `for` loops, `while` loops, and concise **list comprehensions** `[expr for item in iterable]`.",
+          function: "Functions are defined with `def`. Python also supports **lambda (anonymous)** functions for single-line operations.",
+          datastructure: "Python's core collections include **Lists** (ordered, mutable), **Tuples** (immutable), and **Dictionaries** (hash-map key-value pairs).",
+          oop: "Classes define templates via `class`. The constructor is always `__init__(self, ...)`, where `self` refers to the instance."
+        },
+        quizzes: [
+          {
+            question: "How do you define a single-line anonymous function in Python?",
+            options: ["def", "lambda", "inline", "func"],
+            answer: 1,
+            explanation: "<code>lambda</code> creates small anonymous function objects in Python."
+          },
+          {
+            question: "Which collection type is immutable in Python?",
+            options: ["List", "Set", "Tuple", "Dictionary"],
+            answer: 2,
+            explanation: "Tuples <code>(1, 2)</code> cannot be modified after creation."
+          }
+        ]
+      },
 
-    const quizQuestions = [
-      {
-        question: "What keyword is used to declare a variable that cannot be reassigned?",
-        options: ["var", "let", "const", "static"],
-        answer: 2,
-        explanation: "<code>const</code> creates block-scoped variables that cannot be reassigned."
+      javascript: {
+        name: "JavaScript",
+        chips: ["Variables & Scope", "Higher Order Arrays", "Arrow Functions", "Objects & Destructuring", "Classes & Prototype"],
+        snippets: {
+          variable: `// Block-scoped variables\nconst model = "Transformers";\nlet epochs = 30;\nlet isTrained = false;\nconsole.log(\`Model: \${model}, Epochs: \${epochs}\`);`,
+          loop: `// Modern array methods: map, filter, forEach\nconst metrics = [0.82, 0.91, 0.77, 0.95];\nconst highScores = metrics.filter(score => score > 0.85);\nconsole.log("High Scores:", highScores);\n\nmetrics.forEach((m, idx) => console.log(\`Run \${idx}: \${m}\`));`,
+          function: `// ES6 Arrow Functions with Default Parameters\nconst computeLoss = (loss, penalty = 0.01) => {\n  return loss + penalty;\n};\nconsole.log("Adjusted Loss:", computeLoss(0.42));`,
+          datastructure: `// Objects and Modern Destructuring\nconst dataset = {\n  samples: 5000,\n  features: 16,\n  labels: ["cat", "dog", "bird"]\n};\nconst { samples, labels } = dataset;\nconsole.log(\`Samples: \${samples}, First Class: \${labels[0]}\`);`,
+          oop: `// ES6 Classes\nclass Pipeline {\n  constructor(stepName) {\n    this.stepName = stepName;\n  }\n  execute() {\n    return \`Pipeline step '\${this.stepName}' executed successfully.\`;\n  }\n}\nconst pipe = new Pipeline("Data Preprocessing");\nconsole.log(pipe.execute());`
+        },
+        explanations: {
+          variable: "Use `const` by default for immutable bindings and `let` for reassignable block-scoped variables. Avoid `var`.",
+          loop: "JavaScript excels at declarative array traversal: `.map()`, `.filter()`, and `.reduce()`, alongside `for...of` loops.",
+          function: "Arrow functions `const fn = () => {}` offer compact syntax and lexically bind the `this` value.",
+          datastructure: "Objects `{ key: val }` represent key-value maps, paired with arrays `[]` and ES6 `Map`/`Set`.",
+          oop: "JavaScript supports prototype-based inheritance wrapped in modern `class` and `constructor()` syntax."
+        },
+        quizzes: [
+          {
+            question: "Which keyword creates a block-scoped reassignable variable in JavaScript?",
+            options: ["const", "var", "let", "static"],
+            answer: 2,
+            explanation: "<code>let</code> is block-scoped and allows reassignment, whereas <code>const</code> cannot be reassigned."
+          },
+          {
+            question: "What does the array method `.filter()` return?",
+            options: ["A single transformed item", "A new array matching the condition", "The first index found", "A boolean"],
+            answer: 1,
+            explanation: "<code>.filter()</code> returns a brand new array with only elements that satisfy the test function."
+          }
+        ]
       },
-      {
-        question: "Which array method adds a new element to the end of an array?",
-        options: ["push()", "pop()", "shift()", "append()"],
-        answer: 0,
-        explanation: "In JavaScript, <code>.push()</code> adds one or more elements to the end."
+
+      cpp: {
+        name: "C++",
+        chips: ["Static Types & Pointers", "For & Range Loops", "Functions & References", "Vectors & STL Maps", "Classes & Access Specifiers"],
+        snippets: {
+          variable: `// C++ Statically Typed Variables & References\n#include <iostream>\nusing namespace std;\n\nint main() {\n    int iterations = 100;\n    double learningRate = 0.05;\n    int& ref = iterations; // Reference\n    cout << "Iterations: " << ref << ", LR: " << learningRate << endl;\n    return 0;\n}`,
+          loop: `// Modern C++ Range-Based for Loop & STL iteration\n#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    vector<int> batchSizes = {16, 32, 64, 128};\n    for (int size : batchSizes) {\n        cout << "Batch: " << size << endl;\n    }\n    return 0;\n}`,
+          function: `// Pass-by-Reference for zero-copy performance\n#include <iostream>\nusing namespace std;\n\nvoid optimize(int &cycles, double rate = 0.1) {\n    cycles *= 2;\n}\n\nint main() {\n    int c = 10;\n    optimize(c);\n    cout << "Cycles after optimization: " << c << endl;\n    return 0;\n}`,
+          datastructure: `// STL Vector & Unordered Map\n#include <iostream>\n#include <vector>\n#include <unordered_map>\nusing namespace std;\n\nint main() {\n    unordered_map<string, double> metrics;\n    metrics["accuracy"] = 0.93;\n    metrics["loss"] = 0.14;\n    cout << "Accuracy: " << metrics["accuracy"] << endl;\n    return 0;\n}`,
+          oop: `// C++ Class with Public/Private Access Specifiers\n#include <iostream>\nusing namespace std;\n\nclass ModelNode {\nprivate:\n    int nodeId;\npublic:\n    ModelNode(int id) : nodeId(id) {}\n    void display() {\n        cout << "Active Node ID: " << nodeId << endl;\n    }\n};\n\nint main() {\n    ModelNode node(402);\n    node.display();\n    return 0;\n}`
+        },
+        explanations: {
+          variable: "C++ is **strongly and statically typed**, giving fine-grained memory control with direct pointers (`*`) and references (`&`).",
+          loop: "C++11 introduced range-based loops `for (auto &x : collection)` alongside standard indexed counter loops.",
+          function: "Functions allow passing parameters **by value**, **by reference (`&`)**, or **by pointer (`*`)** to avoid copying large datasets.",
+          datastructure: "The **Standard Template Library (STL)** supplies `std::vector`, `std::unordered_map`, `std::set`, and algorithms.",
+          oop: "Classes support explicit `public:`, `private:`, and `protected:` sections, initialization lists, and multiple inheritance."
+        },
+        quizzes: [
+          {
+            question: "What does passing an argument by reference (`int &x`) achieve in C++?",
+            options: ["Creates an independent clone", "Allows editing original variable without copying", "Converts it to constant string", "Deletes the variable"],
+            answer: 1,
+            explanation: "References alias the original memory variable directly, avoiding the overhead of making a copy."
+          },
+          {
+            question: "Which dynamic sequence container from STL automatically manages memory resizing?",
+            options: ["std::array", "std::vector", "std::tuple", "std::pair"],
+            answer: 1,
+            explanation: "<code>std::vector</code> is a dynamic array capable of resizing automatically as items are added."
+          }
+        ]
       },
-      {
-        question: "What is the output of <code>typeof 42</code>?",
-        options: ["'int'", "'number'", "'float'", "'Integer'"],
-        answer: 1,
-        explanation: "JavaScript numbers (both integers and floats) return <code>'number'</code>."
+
+      java: {
+        name: "Java",
+        chips: ["Data Types & Modifiers", "Enhanced For-Loops", "Methods & Overloading", "ArrayList & HashMaps", "Encapsulation & OOP"],
+        snippets: {
+          variable: `// Strongly typed Java with primitive and reference types\npublic class Main {\n    public static void main(String[] args) {\n        int batchSize = 64;\n        double confidence = 0.985;\n        String framework = "DeepLearning4j";\n        System.out.println(framework + " running batch: " + batchSize);\n    }\n}`,
+          loop: `// Java Enhanced for-loop (for-each)\nimport java.util.ArrayList;\n\npublic class Main {\n    public static void main(String[] args) {\n        int[] layers = {128, 256, 512};\n        for (int neurons : layers) {\n            System.out.println("Dense Layer Neurons: " + neurons);\n        }\n    }\n}`,
+          function: `// Method Overloading in Java\npublic class Main {\n    public static double predict(int input) {\n        return input * 1.5;\n    }\n    public static double predict(double input, double bias) {\n        return (input * 1.5) + bias;\n    }\n    public static void main(String[] args) {\n        System.out.println("Overloaded call: " + predict(10.0, 2.5));\n    }\n}`,
+          datastructure: `// Java Collections: ArrayList & HashMap\nimport java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        HashMap<String, Integer> wordIndex = new HashMap<>();\n        wordIndex.put("neural", 1);\n        wordIndex.put("network", 2);\n        System.out.println("Index of 'neural': " + wordIndex.get("neural"));\n    }\n}`,
+          oop: `// OOP: Encapsulation with Getters and Setters\nclass NeuralLayer {\n    private int units;\n    public NeuralLayer(int units) { this.units = units; }\n    public int getUnits() { return this.units; }\n}\npublic class Main {\n    public static void main(String[] args) {\n        NeuralLayer layer = new NeuralLayer(64);\n        System.out.println("Configured Units: " + layer.getUnits());\n    }\n}`
+        },
+        explanations: {
+          variable: "Java enforces strict typing across **primitive types** (`int`, `double`, `boolean`) and **object references** (`String`, `Integer`).",
+          loop: "Iterate cleanly with the enhanced `for (Type item : collection)` loop or Java Stream API operations.",
+          function: "Java uses class-bound **methods**. It natively supports **method overloading** (multiple methods with the same name but different signatures).",
+          datastructure: "The **Java Collections Framework** provides `ArrayList`, `LinkedList`, `HashMap`, and `HashSet`.",
+          oop: "Java is strictly object-oriented: code resides inside classes, emphasizing **encapsulation** with `private` fields and public accessors."
+        },
+        quizzes: [
+          {
+            question: "Where must all executable code reside in a Java program?",
+            options: ["In global script files", "Inside a Class definition", "Inside standard header files", "Inside pointers"],
+            answer: 1,
+            explanation: "Java is strictly class-based; every method and variable must exist inside a class or interface."
+          },
+          {
+            question: "Which Java collection is used to store key-value associations?",
+            options: ["ArrayList", "HashSet", "HashMap", "TreeSet"],
+            answer: 2,
+            explanation: "<code>HashMap&lt;K, V&gt;</code> provides map/dictionary lookups using key hashing in Java."
+          }
+        ]
       }
-    ];
+    };
 
     let currentQuizIndex = 0;
 
-    function buildCodeCard(codeText, snippetKey) {
+    function renderChips() {
+      const langData = languageDatabase[currentLang];
+      chipContainer.innerHTML = `<span class="chip quiz-highlight" onclick="startQuiz()">🎯 ${langData.name} Quiz</span>`;
+      
+      const keys = ["variable", "loop", "function", "datastructure", "oop"];
+      langData.chips.forEach((chipLabel, idx) => {
+        const key = keys[idx];
+        const span = document.createElement("span");
+        span.className = "chip";
+        span.textContent = chipLabel;
+        span.onclick = () => explainTopic(key);
+        chipContainer.appendChild(span);
+      });
+    }
+
+    function changeLanguage() {
+      currentLang = languageSelect.value;
+      localStorage.setItem(STORAGE_KEY_LANG, currentLang);
+      renderChips();
+      appendMessage(`Switched active language to <b>${languageDatabase[currentLang].name}</b>. Try the updated chips or ask any question!`, "bot");
+    }
+
+    function buildCodeCard(codeText, langKey) {
+      // If language is JS, enable direct playground runner button; otherwise show transfer for inspection
+      const isRunnable = (currentLang === "javascript");
+      const btnLabel = isRunnable ? "▶ Run in Scratchpad" : "📋 Send to Scratchpad";
+      
       return `
         <div class="code-block-wrapper">
           <div class="code-block-header">
-            <button class="transfer-btn" onclick="sendToPlayground('${snippetKey}')">▶ Try in Runner</button>
+            <span class="code-lang-tag">${currentLang}</span>
+            <button class="transfer-btn" onclick="sendCodeToPlayground(\`${encodeURIComponent(codeText)}\`, ${isRunnable})">${btnLabel}</button>
           </div>
           <pre><code>${codeText}</code></pre>
         </div>
       `;
     }
 
-    const responses = {
-      "variable": `A <b>variable</b> stores data you can reference and update later:${buildCodeCard(codeSnippets.variable, "variable")}`,
-      "loop": `A <b>loop</b> lets you repeat operations without duplicating code:${buildCodeCard(codeSnippets.loop, "loop")}`,
-      "function": `A <b>function</b> encapsulates repeatable logic with inputs and return values:${buildCodeCard(codeSnippets.function, "function")}`,
-      "list": `A <b>list (or Array)</b> holds an ordered collection of values:${buildCodeCard(codeSnippets.list, "list")}`,
-      "default": "I don't have that topic mapped yet! Try asking about <b>variables</b>, <b>loops</b>, <b>functions</b>, <b>lists</b>, click <b>🎯 Start Quiz</b>, or switch to the <b>⚡ Code Runner</b> tab."
-    };
+    function explainTopic(topicKey) {
+      const langData = languageDatabase[currentLang];
+      const explanation = langData.explanations[topicKey];
+      const snippet = langData.snippets[topicKey];
 
-    function sendToPlayground(snippetKey) {
-      const code = codeSnippets[snippetKey];
-      if (!code) return;
+      appendMessage(`Tell me about <b>${topicKey}</b> in ${langData.name}`, "user");
+      
+      const reply = `
+        ${explanation}
+        ${buildCodeCard(snippet, currentLang)}
+      `;
+      setTimeout(() => appendMessage(reply, "bot"), 300);
+    }
 
+    function sendCodeToPlayground(encodedCode, autoRun) {
+      const code = decodeURIComponent(encodedCode);
       codeEditor.value = code;
       switchTab('playground');
-      runCode();
+      if (autoRun) {
+        runCode();
+      } else {
+        consoleOutput.textContent = `[Info] Loaded ${languageDatabase[currentLang].name} snippet into the editor. (Browser native execution is active for JavaScript; you can edit or rewrite logic to test in JS!)`;
+      }
     }
 
     function switchTab(tab) {
@@ -461,10 +626,10 @@ console.log("Sum 1 to 5:", total);
         } else if (result !== undefined) {
           consoleOutput.textContent = "Returned: " + JSON.stringify(result);
         } else {
-          consoleOutput.textContent = "Code executed successfully with no output.";
+          consoleOutput.textContent = "Code executed cleanly with no direct print output.";
         }
       } catch (err) {
-        consoleOutput.innerHTML = `<span style="color: #f87171;">⚠️ ${err.name}: ${err.message}</span>`;
+        consoleOutput.innerHTML = `<span style="color: #f87171;">⚠️ Runtime Exception: ${err.name} - ${err.message}</span>`;
       } finally {
         console.log = originalLog;
       }
@@ -474,16 +639,20 @@ console.log("Sum 1 to 5:", total);
       const saved = localStorage.getItem(STORAGE_KEY_CHAT);
       const history = saved ? JSON.parse(saved) : [];
 
-      let markdown = `# CodeBuddy - Study Notes & Cheatsheet\n\n`;
+      let markdown = `# CodeBuddy - Multi-Language Study Guide\n\n`;
       markdown += `Generated: ${new Date().toLocaleDateString()}\n`;
-      markdown += `Current Quiz Score: ${score} points\n\n`;
-      markdown += `## 📚 Quick Cheatsheet\n\n`;
+      markdown += `Active Language: ${languageDatabase[currentLang].name}\n`;
+      markdown += `Quiz Score: ${score} points\n\n`;
 
-      for (const [topic, snippet] of Object.entries(codeSnippets)) {
-        markdown += `### ${topic.toUpperCase()}\n\`\`\`javascript\n${snippet}\n\`\`\`\n\n`;
+      markdown += `## 📚 Core Language Cheatsheets\n\n`;
+      for (const [langKey, langObj] of Object.entries(languageDatabase)) {
+        markdown += `### ${langObj.name.toUpperCase()}\n`;
+        for (const [topic, snip] of Object.entries(langObj.snippets)) {
+          markdown += `#### ${topic.toUpperCase()}\n\`\`\`\n${snip}\n\`\`\`\n\n`;
+        }
       }
 
-      markdown += `## 💬 Session Q&A Log\n\n`;
+      markdown += `## 💬 Q&A History\n\n`;
       history.forEach(item => {
         const cleanText = item.html.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim();
         const role = item.sender === "user" ? "👤 Student" : "🤖 CodeBuddy";
@@ -494,7 +663,7 @@ console.log("Sum 1 to 5:", total);
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "CodeBuddy_Study_Notes.md";
+      link.download = `CodeBuddy_${languageDatabase[currentLang].name}_Notes.md`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -517,7 +686,7 @@ console.log("Sum 1 to 5:", total);
     }
 
     function renderWelcome() {
-      appendMessage("Hi! I'm CodeBuddy. Ask a question, click a topic, or hit <b>🎯 Start Quiz</b> to test your skills!", "bot");
+      appendMessage(`Hi! I'm CodeBuddy. Select a language from the dropdown (Python, JavaScript, C++, Java), tap any topic chip, or test your skills with <b>🎯 Quiz Mode</b>!`, "bot");
     }
 
     function renderMessageElement(htmlContent, sender) {
@@ -565,15 +734,26 @@ console.log("Sum 1 to 5:", total);
         return;
       }
 
-      let reply = responses["default"];
-      for (const key in responses) {
-        if (query.includes(key)) {
-          reply = responses[key];
-          break;
-        }
-      }
+      // Check for topic keywords against current active language
+      const langData = languageDatabase[currentLang];
+      let matchedKey = null;
 
-      setTimeout(() => appendMessage(reply, "bot"), 350);
+      if (query.includes("var") || query.includes("type")) matchedKey = "variable";
+      else if (query.includes("loop") || query.includes("for") || query.includes("while")) matchedKey = "loop";
+      else if (query.includes("func") || query.includes("method") || query.includes("lambda")) matchedKey = "function";
+      else if (query.includes("list") || query.includes("array") || query.includes("dict") || query.includes("map") || query.includes("vector")) matchedKey = "datastructure";
+      else if (query.includes("oop") || query.includes("class") || query.includes("object") || query.includes("inherit")) matchedKey = "oop";
+
+      if (matchedKey) {
+        const reply = `
+          ${langData.explanations[matchedKey]}
+          ${buildCodeCard(langData.snippets[matchedKey], currentLang)}
+        `;
+        setTimeout(() => appendMessage(reply, "bot"), 350);
+      } else {
+        const reply = `I'm tuned to <b>${langData.name}</b>. Try asking about <b>variables</b>, <b>loops</b>, <b>functions</b>, <b>data structures</b>, or <b>OOP classes</b>, or pick from the chips below!`;
+        setTimeout(() => appendMessage(reply, "bot"), 350);
+      }
     }
 
     function startQuiz() {
@@ -582,18 +762,20 @@ console.log("Sum 1 to 5:", total);
     }
 
     function presentQuestion(index) {
-      const q = quizQuestions[index];
+      const questions = languageDatabase[currentLang].quizzes;
+      const q = questions[index];
       let optionsHtml = '<div class="quiz-options">';
       q.options.forEach((opt, optIndex) => {
         optionsHtml += `<button class="quiz-btn" onclick="submitAnswer(${index}, ${optIndex})">${opt}</button>`;
       });
       optionsHtml += '</div>';
 
-      appendMessage(`<b>Quiz Question ${index + 1}/${quizQuestions.length}:</b><br>${q.question}${optionsHtml}`, "bot");
+      appendMessage(`<b>[${languageDatabase[currentLang].name}] Quiz ${index + 1}/${questions.length}:</b><br>${q.question}${optionsHtml}`, "bot");
     }
 
     function submitAnswer(qIndex, selectedOptIndex) {
-      const q = quizQuestions[qIndex];
+      const questions = languageDatabase[currentLang].quizzes;
+      const q = questions[qIndex];
       const buttons = document.querySelectorAll(".quiz-btn");
       buttons.forEach(btn => btn.disabled = true);
 
@@ -604,11 +786,11 @@ console.log("Sum 1 to 5:", total);
         appendMessage(`❌ <b>Not quite!</b> The correct answer was <b>${q.options[q.answer]}</b>.<br>${q.explanation}`, "bot");
       }
 
-      if (qIndex + 1 < quizQuestions.length) {
+      if (qIndex + 1 < questions.length) {
         setTimeout(() => presentQuestion(qIndex + 1), 1000);
       } else {
         setTimeout(() => {
-          appendMessage(`🎉 <b>Quiz Completed!</b> Current total score: <b>${score}</b>. Hit <b>🎯 Start Quiz</b> again whenever you want another round!`, "bot");
+          appendMessage(`🎉 <b>${languageDatabase[currentLang].name} Quiz Completed!</b> Current total score: <b>${score}</b>. Switch languages or start another quiz round anytime!`, "bot");
         }, 1000);
       }
     }
@@ -618,15 +800,13 @@ console.log("Sum 1 to 5:", total);
       input.value = "";
     }
 
-    function askTopic(topicText) {
-      processQuery(topicText);
-    }
-
     sendBtn.addEventListener("click", handleSend);
     input.addEventListener("keydown", (e) => {
       if (e.key === "Enter") handleSend();
     });
 
+    // Initialize UI
+    renderChips();
     loadHistory();
   </script>
 </body>
