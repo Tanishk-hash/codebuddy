@@ -3,50 +3,77 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CodeBuddy - Multi-Language Coding Tutor</title>
+  <title>CodeBuddy - Neon Cyberpunk Edition</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: #0f172a; color: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 1rem; }
+    :root {
+      --neon-cyan: #00f0ff;
+      --neon-pink: #ff007f;
+      --neon-purple: #8b5cf6;
+      --bg-dark: #070913;
+      --card-bg: #0f1322;
+      --border-glow: #1e293b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; }
+    
+    body { 
+      background: radial-gradient(circle at top, #15102a 0%, #070913 100%); 
+      color: #f8fafc; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      min-height: 100vh; 
+      padding: 1rem; 
+    }
     
     .app-container { 
       width: 100%; 
-      max-width: 680px; 
-      background: #1e293b; 
-      border-radius: 12px; 
+      max-width: 700px; 
+      background: var(--card-bg); 
+      border-radius: 14px; 
       display: flex; 
       flex-direction: column; 
-      height: 720px; 
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4); 
+      height: 740px; 
+      box-shadow: 0 0 35px rgba(0, 240, 255, 0.15), 0 10px 30px rgba(0,0,0,0.8); 
       overflow: hidden; 
-      border: 1px solid #334155; 
+      border: 1px solid rgba(0, 240, 255, 0.3); 
     }
     
     .app-header { 
-      padding: 0.75rem 1.2rem; 
-      background: #334155; 
+      padding: 0.8rem 1.2rem; 
+      background: #11162b; 
       display: flex; 
       align-items: center; 
       justify-content: space-between;
-      border-bottom: 1px solid #475569;
+      border-bottom: 1px solid rgba(0, 240, 255, 0.2);
     }
 
     .header-left {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      font-weight: 600;
-      font-size: 1.05rem;
+      gap: 0.6rem;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+      color: var(--neon-cyan);
+      text-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
     }
 
-    .lang-selector {
-      background: #0f172a;
-      color: #38bdf8;
-      border: 1px solid #0284c7;
+    .selector-group {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .custom-select {
+      background: #070913;
+      color: var(--neon-cyan);
+      border: 1px solid rgba(0, 240, 255, 0.4);
       border-radius: 6px;
       padding: 0.3rem 0.5rem;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       outline: none;
       cursor: pointer;
+      font-weight: 600;
     }
 
     .header-right {
@@ -55,10 +82,33 @@
       gap: 0.5rem;
     }
 
+    .aura-badge {
+      background: linear-gradient(135deg, var(--neon-pink), #7928ca);
+      color: #fff;
+      font-size: 0.78rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 20px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      box-shadow: 0 0 12px rgba(255, 0, 127, 0.5);
+      animation: pulse 2.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); box-shadow: 0 0 18px rgba(255, 0, 127, 0.8); }
+    }
+
+    .rank-tag {
+      font-size: 0.72rem;
+      color: #94a3b8;
+      font-weight: 600;
+    }
+
     .tab-nav {
       display: flex;
-      background: #0f172a;
-      border-bottom: 1px solid #334155;
+      background: #090c18;
+      border-bottom: 1px solid rgba(0, 240, 255, 0.15);
     }
     .tab-btn {
       flex: 1;
@@ -73,9 +123,10 @@
       transition: all 0.2s;
     }
     .tab-btn.active {
-      color: #38bdf8;
-      border-bottom: 2px solid #38bdf8;
-      background: rgba(56, 189, 248, 0.05);
+      color: var(--neon-cyan);
+      border-bottom: 2px solid var(--neon-cyan);
+      background: rgba(0, 240, 255, 0.08);
+      text-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
     }
 
     .tab-content {
@@ -84,34 +135,8 @@
       flex-direction: column;
       overflow: hidden;
     }
-    .tab-content.active {
-      display: flex;
-    }
+    .tab-content.active { display: flex; }
 
-    .score-badge {
-      background: #0284c7;
-      color: #fff;
-      font-size: 0.78rem;
-      padding: 0.25rem 0.6rem;
-      border-radius: 12px;
-      font-weight: 500;
-    }
-
-    .action-btn {
-      color: #fff;
-      border: none;
-      font-size: 0.75rem;
-      padding: 0.25rem 0.6rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: background 0.15s ease;
-    }
-    .export-btn { background: #059669; }
-    .export-btn:hover { background: #047857; }
-    .clear-btn { background: #ef4444; }
-    .clear-btn:hover { background: #dc2626; }
-    
     .chat-messages { 
       flex: 1; 
       padding: 1rem; 
@@ -122,151 +147,174 @@
     }
     
     .msg { 
-      padding: 0.75rem 1rem; 
-      border-radius: 8px; 
+      padding: 0.85rem 1.1rem; 
+      border-radius: 10px; 
       max-width: 90%; 
       line-height: 1.5; 
       font-size: 0.95rem; 
     }
-    .msg.bot { background: #1e40af; align-self: flex-start; color: #ffffff; }
-    .msg.user { background: #475569; align-self: flex-end; color: #ffffff; }
+    .msg.bot { 
+      background: #111a38; 
+      align-self: flex-start; 
+      color: #e2e8f0; 
+      border-left: 3px solid var(--neon-cyan);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    .msg.user { 
+      background: #1e1b4b; 
+      align-self: flex-end; 
+      color: #fff; 
+      border-right: 3px solid var(--neon-pink);
+    }
 
     .code-block-wrapper {
       position: relative;
-      margin-top: 0.5rem;
-      background: #020617;
-      border: 1px solid #1e293b;
-      border-radius: 6px;
+      margin-top: 0.6rem;
+      background: #05070e;
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      border-radius: 8px;
       overflow: hidden;
     }
     .code-block-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.35rem 0.6rem;
-      background: #0b1329;
-      border-bottom: 1px solid #1e293b;
+      padding: 0.35rem 0.75rem;
+      background: #0b0f20;
+      border-bottom: 1px solid rgba(0, 240, 255, 0.15);
     }
     .code-lang-tag {
       font-size: 0.72rem;
-      color: #94a3b8;
+      color: var(--neon-cyan);
       font-family: monospace;
-      text-transform: uppercase;
+      font-weight: bold;
     }
     .transfer-btn {
-      background: #38bdf8;
-      color: #0f172a;
+      background: var(--neon-cyan);
+      color: #070913;
       border: none;
       font-size: 0.72rem;
-      font-weight: 700;
-      padding: 0.2rem 0.55rem;
+      font-weight: 800;
+      padding: 0.25rem 0.65rem;
       border-radius: 4px;
       cursor: pointer;
-      transition: background 0.15s;
+      transition: all 0.2s;
     }
-    .transfer-btn:hover { background: #7dd3fc; }
+    .transfer-btn:hover { 
+      background: #fff; 
+      box-shadow: 0 0 10px var(--neon-cyan);
+    }
 
     pre {
-      padding: 0.75rem;
+      padding: 0.85rem;
       overflow-x: auto;
-      font-family: "Courier New", Courier, monospace;
+      font-family: 'Courier New', Courier, monospace;
       font-size: 0.85rem;
       color: #38bdf8;
       margin: 0;
     }
     code {
-      font-family: "Courier New", Courier, monospace;
-      background: rgba(0, 0, 0, 0.25);
-      padding: 2px 4px;
+      font-family: 'Courier New', Courier, monospace;
+      background: rgba(0, 240, 255, 0.1);
+      padding: 2px 5px;
       border-radius: 4px;
+      color: var(--neon-cyan);
     }
 
     .quiz-options {
       display: flex;
       flex-direction: column;
-      gap: 0.4rem;
-      margin-top: 0.75rem;
+      gap: 0.5rem;
+      margin-top: 0.85rem;
     }
     .quiz-btn {
-      background: #0f172a;
+      background: #070a16;
       color: #e2e8f0;
-      border: 1px solid #38bdf8;
+      border: 1px solid rgba(0, 240, 255, 0.3);
       border-radius: 6px;
-      padding: 0.5rem 0.75rem;
+      padding: 0.6rem 0.85rem;
       text-align: left;
       font-size: 0.85rem;
+      font-weight: 600;
       cursor: pointer;
-      transition: background 0.15s ease;
+      transition: all 0.2s;
     }
     .quiz-btn:hover:not(:disabled) {
-      background: #0284c7;
+      background: rgba(0, 240, 255, 0.15);
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
       color: #fff;
     }
-    .quiz-btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
+    .quiz-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
     .chip-container {
       display: flex;
       gap: 0.5rem;
-      padding: 0.6rem 1rem;
-      background: #1e293b;
+      padding: 0.65rem 1rem;
+      background: #0a0d1d;
       overflow-x: auto;
-      border-top: 1px solid #334155;
+      border-top: 1px solid rgba(0, 240, 255, 0.15);
     }
     .chip {
-      background: #334155;
+      background: #11162d;
       color: #cbd5e1;
-      padding: 0.35rem 0.75rem;
-      border-radius: 16px;
+      padding: 0.4rem 0.85rem;
+      border-radius: 20px;
       font-size: 0.8rem;
+      font-weight: 600;
       white-space: nowrap;
       cursor: pointer;
-      border: 1px solid #475569;
-      transition: all 0.2s ease;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.2s;
     }
     .chip:hover {
-      background: #38bdf8;
-      color: #0f172a;
-      border-color: #38bdf8;
+      background: var(--neon-cyan);
+      color: #070913;
+      box-shadow: 0 0 12px var(--neon-cyan);
     }
     .chip.quiz-highlight {
-      background: #f59e0b;
-      color: #0f172a;
-      font-weight: 600;
-      border-color: #fbbf24;
+      background: linear-gradient(135deg, #f59e0b, #ef4444);
+      color: #fff;
+      font-weight: 700;
+      border: none;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
     }
 
     .chat-input-area { 
       display: flex; 
-      padding: 0.75rem; 
-      background: #1e293b; 
-      border-top: 1px solid #334155; 
+      padding: 0.75rem 1rem; 
+      background: #0e1224; 
+      border-top: 1px solid rgba(0, 240, 255, 0.15); 
       gap: 0.5rem; 
     }
     input[type="text"] { 
       flex: 1; 
-      padding: 0.75rem; 
-      border-radius: 6px; 
-      border: 1px solid #475569; 
-      background: #0f172a; 
+      padding: 0.75rem 1rem; 
+      border-radius: 8px; 
+      border: 1px solid rgba(0, 240, 255, 0.3); 
+      background: #070913; 
       color: #fff; 
       outline: none; 
     }
-    input[type="text"]:focus { border-color: #38bdf8; }
+    input[type="text"]:focus { 
+      border-color: var(--neon-cyan); 
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.3); 
+    }
     
     button#sendBtn, button#runBtn { 
-      background: #38bdf8; 
-      color: #0f172a; 
+      background: linear-gradient(135deg, var(--neon-cyan), #0284c7); 
+      color: #070913; 
       border: none; 
-      padding: 0.75rem 1.25rem; 
-      font-weight: 600; 
-      border-radius: 6px; 
+      padding: 0.75rem 1.3rem; 
+      font-weight: 800; 
+      border-radius: 8px; 
       cursor: pointer; 
-      transition: background 0.2s; 
+      transition: all 0.2s; 
     }
-    button#sendBtn:hover, button#runBtn:hover { background: #7dd3fc; }
+    button#sendBtn:hover, button#runBtn:hover { 
+      box-shadow: 0 0 15px var(--neon-cyan); 
+      transform: translateY(-1px);
+    }
 
     .playground-area {
       display: flex;
@@ -274,7 +322,7 @@
       flex: 1;
       padding: 1rem;
       gap: 0.75rem;
-      background: #0f172a;
+      background: #070913;
     }
     .editor-label {
       font-size: 0.8rem;
@@ -282,33 +330,48 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      font-weight: 600;
     }
     textarea#codeEditor {
       width: 100%;
-      height: 200px;
-      background: #1e293b;
-      border: 1px solid #334155;
+      height: 210px;
+      background: #0b0e1b;
+      border: 1px solid rgba(0, 240, 255, 0.25);
       border-radius: 8px;
       color: #38bdf8;
-      padding: 0.75rem;
-      font-family: "Courier New", Courier, monospace;
+      padding: 0.85rem;
+      font-family: 'Courier New', Courier, monospace;
       font-size: 0.9rem;
       resize: none;
       outline: none;
     }
-    textarea#codeEditor:focus { border-color: #38bdf8; }
+    textarea#codeEditor:focus { 
+      border-color: var(--neon-cyan); 
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.2); 
+    }
     .console-output {
       flex: 1;
-      background: #020617;
-      border: 1px solid #1e293b;
+      background: #02040a;
+      border: 1px solid rgba(0, 240, 255, 0.15);
       border-radius: 8px;
-      padding: 0.75rem;
-      font-family: "Courier New", Courier, monospace;
+      padding: 0.85rem;
+      font-family: 'Courier New', Courier, monospace;
       font-size: 0.85rem;
       overflow-y: auto;
       color: #a7f3d0;
       white-space: pre-wrap;
     }
+
+    .action-btn {
+      color: #fff;
+      border: none;
+      font-size: 0.72rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .clear-btn { background: #ef4444; }
   </style>
 </head>
 <body>
@@ -316,25 +379,30 @@
   <div class="app-container">
     <div class="app-header">
       <div class="header-left">
-        <span>🤖 CodeBuddy</span>
-        <select class="lang-selector" id="languageSelect" onchange="changeLanguage()">
-          <option value="python">🐍 Python</option>
-          <option value="javascript">⚡ JavaScript</option>
-          <option value="cpp">⚙️ C++</option>
-          <option value="java">☕ Java</option>
-        </select>
+        <span>⚡ CodeBuddy</span>
+        <div class="selector-group">
+          <select class="custom-select" id="languageSelect" onchange="changeLanguage()">
+            <option value="python">🐍 Python</option>
+            <option value="javascript">⚡ JavaScript</option>
+            <option value="cpp">⚙️ C++</option>
+            <option value="java">☕ Java</option>
+          </select>
+          <select class="custom-select" id="vibeSelect" onchange="changeVibe()">
+            <option value="sigma">🗿 Sigma Mode</option>
+            <option value="chill">☕ Chill Dev</option>
+          </select>
+        </div>
       </div>
       <div class="header-right">
-        <span class="score-badge" id="scoreDisplay">Score: 0</span>
-        <button class="action-btn export-btn" onclick="exportStudyNotes()">📥 Export</button>
+        <span class="aura-badge" id="auraDisplay">⚡ 0 Aura</span>
         <button class="action-btn clear-btn" onclick="resetChat()">Reset</button>
       </div>
     </div>
 
-    <!-- Tabs -->
+    <!-- Navigation Tabs -->
     <div class="tab-nav">
-      <button class="tab-btn active" id="tabChatBtn" onclick="switchTab('chat')">💬 Tutor Chat</button>
-      <button class="tab-btn" id="tabPlayBtn" onclick="switchTab('playground')">⚡ Code Runner</button>
+      <button class="tab-btn active" id="tabChatBtn" onclick="switchTab('chat')">💬 Cyber Tutor</button>
+      <button class="tab-btn" id="tabPlayBtn" onclick="switchTab('playground')">⚡ Neon Runner</button>
     </div>
     
     <!-- Chat Screen -->
@@ -344,7 +412,7 @@
       <div class="chip-container" id="chipContainer"></div>
 
       <div class="chat-input-area">
-        <input type="text" id="userInput" placeholder="Ask a programming question..." autocomplete="off" />
+        <input type="text" id="userInput" placeholder="Ask code questions or cook logic..." autocomplete="off" />
         <button id="sendBtn">Send</button>
       </div>
     </div>
@@ -353,17 +421,17 @@
     <div class="tab-content" id="playgroundTab">
       <div class="playground-area">
         <div class="editor-label">
-          <span id="runnerLabel">Scratchpad (Interactive JavaScript Execution)</span>
-          <button id="runBtn" onclick="runCode()">▶ Run Code</button>
+          <span>⚡ Live Browser Engine (Test your logic)</span>
+          <button id="runBtn" onclick="runCode()">▶ Execute</button>
         </div>
-        <textarea id="codeEditor">// Write and test JavaScript or inspect logic here!
-let languages = ["Python", "JavaScript", "C++", "Java"];
-for (let lang of languages) {
-  console.log("Mastering:", lang);
+        <textarea id="codeEditor">// Test your logic & earn aura!
+let aura = 1000;
+for (let i = 1; i <= 3; i++) {
+  console.log(`Clutch round ${i}: Aura boosted to ${aura * i}`);
 }
 </textarea>
-        <div class="editor-label">Output Console:</div>
-        <div class="console-output" id="consoleOutput">Click 'Run Code' above to execute snippets...</div>
+        <div class="editor-label">Terminal Console:</div>
+        <div class="console-output" id="consoleOutput">Terminal idle. Hit 'Execute' to run code...</div>
       </div>
     </div>
 
@@ -373,158 +441,234 @@ for (let lang of languages) {
     const messages = document.getElementById("messages");
     const input = document.getElementById("userInput");
     const sendBtn = document.getElementById("sendBtn");
-    const scoreDisplay = document.getElementById("scoreDisplay");
+    const auraDisplay = document.getElementById("auraDisplay");
     const consoleOutput = document.getElementById("consoleOutput");
     const codeEditor = document.getElementById("codeEditor");
     const languageSelect = document.getElementById("languageSelect");
+    const vibeSelect = document.getElementById("vibeSelect");
     const chipContainer = document.getElementById("chipContainer");
 
     const STORAGE_KEY_CHAT = "codebuddy_chat_history";
-    const STORAGE_KEY_SCORE = "codebuddy_score";
+    const STORAGE_KEY_AURA = "codebuddy_aura_points";
     const STORAGE_KEY_LANG = "codebuddy_selected_lang";
+    const STORAGE_KEY_VIBE = "codebuddy_selected_vibe";
 
     let currentLang = localStorage.getItem(STORAGE_KEY_LANG) || "python";
+    let currentVibe = localStorage.getItem(STORAGE_KEY_VIBE) || "sigma";
     languageSelect.value = currentLang;
+    vibeSelect.value = currentVibe;
 
-    let score = parseInt(localStorage.getItem(STORAGE_KEY_SCORE)) || 0;
-    scoreDisplay.textContent = `Score: ${score}`;
+    let aura = parseInt(localStorage.getItem(STORAGE_KEY_AURA)) || 0;
+    updateAuraBadge();
 
-    // Comprehensive multi-language library
+    const asciiMascots = {
+      chad: `
+  (\\__/) 
+  (•ㅅ•)  [W DEV STATUS: ACTIVE]
+ / 　 づ
+      `,
+      fire: `
+  ▲
+ ▲ ▲  [BOOYAH! AURA INCREASED]
+      `
+    };
+
     const languageDatabase = {
       python: {
         name: "Python",
-        chips: ["Variables & Types", "Loops & Comprehensions", "Functions & Lambdas", "Lists & Dictionaries", "Classes & OOP"],
+        chips: ["Variables", "Loops", "Functions", "Lists/Dicts", "OOP Classes"],
         snippets: {
-          variable: `# Python dynamically determines types\nuser_id = 101\nlearning_rate = 0.001\nusername = "Tanishk"\nis_active = True\nprint(f"User: {username} | ID: {user_id} | Rate: {learning_rate}")`,
-          loop: `# Standard for-loop and List Comprehension\nsquares = [x**2 for x in range(1, 6)]\nprint("Squares:", squares)\n\nfor idx, val in enumerate(squares):\n    print(f"Index {idx} => {val}")`,
-          function: `# Keyword arguments and Lambda function\ndef calculate_accuracy(correct, total=100):\n    return (correct / total) * 100\n\nsquare = lambda x: x * x\nprint(f"Accuracy: {calculate_accuracy(88)}%")\nprint(f"Lambda 9^2: {square(9)}")`,
-          datastructure: `# Python Lists & Dictionaries\nmodel_config = {\n    "architecture": "CNN",\n    "epochs": 25,\n    "layers": [64, 128, 256]\n}\nmodel_config["layers"].append(512)\nprint("Config:", model_config)`,
-          oop: `# Object-Oriented Programming in Python\nclass ModelEvaluator:\n    def __init__(self, name):\n        self.name = name\n    \n    def evaluate(self, metric):\n        return f"{self.name} scored {metric} on F1-Score"\n\neval_instance = ModelEvaluator("ResNet50")\nprint(eval_instance.evaluate(0.94))`
+          variable: `# Clean typing\nuser = "SigmaDev"\naura = 9999\nis_clutch = True\nprint(f"{user} holding {aura} Aura!")`,
+          loop: `# List comprehension = Infinite Aura\nsquares = [x**2 for x in range(1, 6)]\nprint("Computed matrix:", squares)`,
+          function: `# Lambda & keyword arguments\ncalc_aura = lambda base, mult: base * mult\nprint("Final Aura:", calc_aura(500, 2))`,
+          datastructure: `# Python Dict + List\nstats = {"player": "Tanishk", "rank": "Terminal God", "skills": ["AI", "Python"]}\nprint("Player card:", stats)`,
+          oop: `class CodeGigachad:\n    def __init__(self, alias):\n        self.alias = alias\n    def clutch(self):\n        return f"{self.alias} just dropped a zero-bug commit!"\n\ndev = CodeGigachad("Tanishk")\nprint(dev.clutch())`
         },
         explanations: {
-          variable: "Python features **dynamic typing**—you don't declare types explicitly. Variables point directly to memory objects.",
-          loop: "Python supports standard `for` loops, `while` loops, and concise **list comprehensions** `[expr for item in iterable]`.",
-          function: "Functions are defined with `def`. Python also supports **lambda (anonymous)** functions for single-line operations.",
-          datastructure: "Python's core collections include **Lists** (ordered, mutable), **Tuples** (immutable), and **Dictionaries** (hash-map key-value pairs).",
-          oop: "Classes define templates via `class`. The constructor is always `__init__(self, ...)`, where `self` refers to the instance."
+          sigma: {
+            variable: "Variables are your aura stash. Python uses dynamic typing, so you don't waste time declaring types. Pure efficiency.",
+            loop: "Loops repeat operations so you don't code like an NPC. List comprehensions give you +200 developer aura on the spot.",
+            function: "Functions are reusable logic packages. Writing clean functions means you never repeat yourself like an amateur.",
+            datastructure: "Lists and Dicts are your inventory backpack. Fast lookups, zero lag.",
+            oop: "OOP classes let you instantiate blueprints. You're building the game, not playing in it."
+          },
+          chill: {
+            variable: "Variables hold values in memory dynamically without needing explicit type declarations.",
+            loop: "Loops allow iteration over sequences such as lists or ranges using clean, readable syntax.",
+            function: "Functions package reusable blocks of code with parameters and return values.",
+            datastructure: "Lists offer indexed sequences and Dictionaries offer key-value associations.",
+            oop: "Classes define templates with attributes and methods, initialized via __init__."
+          }
         },
         quizzes: [
           {
-            question: "How do you define a single-line anonymous function in Python?",
+            question: "How do you define a single-line lambda function in Python?",
             options: ["def", "lambda", "inline", "func"],
             answer: 1,
-            explanation: "<code>lambda</code> creates small anonymous function objects in Python."
+            explanation: "<code>lambda</code> creates high-speed anonymous function objects in Python."
           },
           {
-            question: "Which collection type is immutable in Python?",
+            question: "Which of these collections is strictly immutable?",
             options: ["List", "Set", "Tuple", "Dictionary"],
             answer: 2,
-            explanation: "Tuples <code>(1, 2)</code> cannot be modified after creation."
+            explanation: "Tuples cannot be altered once created. Permanent aura."
           }
         ]
       },
 
       javascript: {
         name: "JavaScript",
-        chips: ["Variables & Scope", "Higher Order Arrays", "Arrow Functions", "Objects & Destructuring", "Classes & Prototype"],
+        chips: ["Variables & Scope", "Array Methods", "Arrow Functions", "Objects", "Classes"],
         snippets: {
-          variable: `// Block-scoped variables\nconst model = "Transformers";\nlet epochs = 30;\nlet isTrained = false;\nconsole.log(\`Model: \${model}, Epochs: \${epochs}\`);`,
-          loop: `// Modern array methods: map, filter, forEach\nconst metrics = [0.82, 0.91, 0.77, 0.95];\nconst highScores = metrics.filter(score => score > 0.85);\nconsole.log("High Scores:", highScores);\n\nmetrics.forEach((m, idx) => console.log(\`Run \${idx}: \${m}\`));`,
-          function: `// ES6 Arrow Functions with Default Parameters\nconst computeLoss = (loss, penalty = 0.01) => {\n  return loss + penalty;\n};\nconsole.log("Adjusted Loss:", computeLoss(0.42));`,
-          datastructure: `// Objects and Modern Destructuring\nconst dataset = {\n  samples: 5000,\n  features: 16,\n  labels: ["cat", "dog", "bird"]\n};\nconst { samples, labels } = dataset;\nconsole.log(\`Samples: \${samples}, First Class: \${labels[0]}\`);`,
-          oop: `// ES6 Classes\nclass Pipeline {\n  constructor(stepName) {\n    this.stepName = stepName;\n  }\n  execute() {\n    return \`Pipeline step '\${this.stepName}' executed successfully.\`;\n  }\n}\nconst pipe = new Pipeline("Data Preprocessing");\nconsole.log(pipe.execute());`
+          variable: `// Never use var in 2026\nconst player = "SigmaCoder";\nlet aura = 2500;\nconsole.log(\`\${player} has \${aura} Aura\`);`,
+          loop: `// Higher-order W methods\nconst nums = [10, 20, 30, 40];\nconst boosted = nums.map(n => n * 2);\nconsole.log("Boosted array:", boosted);`,
+          function: `// Clean arrow syntax\nconst dropClutch = (score) => score >= 90 ? "GigaChad" : "Keep Grinding";\nconsole.log(dropClutch(95));`,
+          datastructure: `// Object destructuring\nconst hero = { tag: "Apex", level: 99 };\nconst { tag, level } = hero;\nconsole.log(\`Hero: \${tag} @ Level \${level}\`);`,
+          oop: `class CyberRunner {\n  constructor(handle) { this.handle = handle; }\n  execute() { return \`\${this.handle} running root exploits.\`; }\n}\nconst runner = new CyberRunner("Neo");\nconsole.log(runner.execute());`
         },
         explanations: {
-          variable: "Use `const` by default for immutable bindings and `let` for reassignable block-scoped variables. Avoid `var`.",
-          loop: "JavaScript excels at declarative array traversal: `.map()`, `.filter()`, and `.reduce()`, alongside `for...of` loops.",
-          function: "Arrow functions `const fn = () => {}` offer compact syntax and lexically bind the `this` value.",
-          datastructure: "Objects `{ key: val }` represent key-value maps, paired with arrays `[]` and ES6 `Map`/`Set`.",
-          oop: "JavaScript supports prototype-based inheritance wrapped in modern `class` and `constructor()` syntax."
+          sigma: {
+            variable: "Using `var` is negative 1000 aura. Real devs run `const` by default and `let` only when mutability is mandatory.",
+            loop: "Stop writing old for-loops like an NPC. Use `.map()`, `.filter()`, and `.reduce()` for max elegance.",
+            function: "Arrow functions give you concise syntax and lexical `this` binding. Straight W.",
+            datastructure: "JavaScript Objects and Arrays hold your data state. Destructuring saves you 10 keystrokes every line.",
+            oop: "Modern ES6 classes wrap JavaScript prototypes into clean syntax."
+          },
+          chill: {
+            variable: "JavaScript uses `const` for immutable variables and `let` for block-scoped reassignable variables.",
+            loop: "Array methods like `.map()` and `.filter()` allow declarative, functional iteration.",
+            function: "Arrow functions provide a clean shorthand for function expressions.",
+            datastructure: "Objects store key-value properties, while arrays store ordered lists.",
+            oop: "ES6 classes provide clear syntax for object-oriented instantiation."
+          }
         },
         quizzes: [
           {
-            question: "Which keyword creates a block-scoped reassignable variable in JavaScript?",
+            question: "Which keyword creates a block-scoped reassignable variable?",
             options: ["const", "var", "let", "static"],
             answer: 2,
-            explanation: "<code>let</code> is block-scoped and allows reassignment, whereas <code>const</code> cannot be reassigned."
+            explanation: "<code>let</code> allows reassignment while preventing scope leaks."
           },
           {
-            question: "What does the array method `.filter()` return?",
-            options: ["A single transformed item", "A new array matching the condition", "The first index found", "A boolean"],
-            answer: 1,
-            explanation: "<code>.filter()</code> returns a brand new array with only elements that satisfy the test function."
+            question: "What does `[1, 2, 3].map(x => x * 2)` return?",
+            options: ["[2, 4, 6]", "6", "[1, 2, 3, 1, 2, 3]", "undefined"],
+            answer: 0,
+            explanation: "`.map()` applies the transformation to every element."
           }
         ]
       },
 
       cpp: {
         name: "C++",
-        chips: ["Static Types & Pointers", "For & Range Loops", "Functions & References", "Vectors & STL Maps", "Classes & Access Specifiers"],
+        chips: ["Pointers & Types", "Range Loops", "Pass by Ref", "Vectors & STL", "Classes"],
         snippets: {
-          variable: `// C++ Statically Typed Variables & References\n#include <iostream>\nusing namespace std;\n\nint main() {\n    int iterations = 100;\n    double learningRate = 0.05;\n    int& ref = iterations; // Reference\n    cout << "Iterations: " << ref << ", LR: " << learningRate << endl;\n    return 0;\n}`,
-          loop: `// Modern C++ Range-Based for Loop & STL iteration\n#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    vector<int> batchSizes = {16, 32, 64, 128};\n    for (int size : batchSizes) {\n        cout << "Batch: " << size << endl;\n    }\n    return 0;\n}`,
-          function: `// Pass-by-Reference for zero-copy performance\n#include <iostream>\nusing namespace std;\n\nvoid optimize(int &cycles, double rate = 0.1) {\n    cycles *= 2;\n}\n\nint main() {\n    int c = 10;\n    optimize(c);\n    cout << "Cycles after optimization: " << c << endl;\n    return 0;\n}`,
-          datastructure: `// STL Vector & Unordered Map\n#include <iostream>\n#include <vector>\n#include <unordered_map>\nusing namespace std;\n\nint main() {\n    unordered_map<string, double> metrics;\n    metrics["accuracy"] = 0.93;\n    metrics["loss"] = 0.14;\n    cout << "Accuracy: " << metrics["accuracy"] << endl;\n    return 0;\n}`,
-          oop: `// C++ Class with Public/Private Access Specifiers\n#include <iostream>\nusing namespace std;\n\nclass ModelNode {\nprivate:\n    int nodeId;\npublic:\n    ModelNode(int id) : nodeId(id) {}\n    void display() {\n        cout << "Active Node ID: " << nodeId << endl;\n    }\n};\n\nint main() {\n    ModelNode node(402);\n    node.display();\n    return 0;\n}`
+          variable: `// Hardcore memory control\n#include <iostream>\nusing namespace std;\n\nint main() {\n    int aura = 5000;\n    int* ptr = &aura; // Direct memory address\n    cout << "Aura at memory: " << ptr << " = " << *ptr << endl;\n    return 0;\n}`,
+          loop: `// Modern range-based for loop\n#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    vector<int> stats = {100, 250, 500};\n    for (const auto& s : stats) cout << "Stat: " << s << endl;\n    return 0;\n}`,
+          function: `// Pass-by-reference avoids copying\n#include <iostream>\nusing namespace std;\n\nvoid boost(int &val) { val += 1000; }\n\nint main() {\n    int score = 400;\n    boost(score);\n    cout << "Boosted: " << score << endl;\n    return 0;\n}`,
+          datastructure: `// STL Vector\n#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    vector<string> stack = {"Kernel", "Drivers", "AI"};\n    stack.push_back("Shader");\n    cout << "Top layer: " << stack.back() << endl;\n    return 0;\n}`,
+          oop: `// C++ Class\n#include <iostream>\nusing namespace std;\n\nclass CyberBot {\npublic:\n    void boot() { cout << "Systems fully operational." << endl; }\n};\n\nint main() {\n    CyberBot bot;\n    bot.boot();\n    return 0;\n}`
         },
         explanations: {
-          variable: "C++ is **strongly and statically typed**, giving fine-grained memory control with direct pointers (`*`) and references (`&`).",
-          loop: "C++11 introduced range-based loops `for (auto &x : collection)` alongside standard indexed counter loops.",
-          function: "Functions allow passing parameters **by value**, **by reference (`&`)**, or **by pointer (`*`)** to avoid copying large datasets.",
-          datastructure: "The **Standard Template Library (STL)** supplies `std::vector`, `std::unordered_map`, `std::set`, and algorithms.",
-          oop: "Classes support explicit `public:`, `private:`, and `protected:` sections, initialization lists, and multiple inheritance."
+          sigma: {
+            variable: "C++ gives you raw metal control. Direct pointer manipulation separates true engineers from casuals.",
+            loop: "Range-based loops iterate through STL sequences with zero unnecessary index overhead.",
+            function: "Pass-by-reference `&` ensures zero-copy speed. Maximum performance, zero memory waste.",
+            datastructure: "The C++ Standard Template Library (`std::vector`) gives you peak execution efficiency.",
+            oop: "Encapsulation with `private` and `public` specifiers protects your memory internals."
+          },
+          chill: {
+            variable: "C++ is statically typed with explicit memory access using pointers and references.",
+            loop: "Modern C++ supports clean range-based for loops alongside standard index loops.",
+            function: "Passing by reference allows functions to modify arguments without copying.",
+            datastructure: "STL containers like `vector` handle dynamic arrays automatically.",
+            oop: "C++ classes enforce encapsulation with explicit access specifiers."
+          }
         },
         quizzes: [
           {
-            question: "What does passing an argument by reference (`int &x`) achieve in C++?",
-            options: ["Creates an independent clone", "Allows editing original variable without copying", "Converts it to constant string", "Deletes the variable"],
+            question: "What operator retrieves the memory address of a variable in C++?",
+            options: ["*", "&", "#", "->"],
             answer: 1,
-            explanation: "References alias the original memory variable directly, avoiding the overhead of making a copy."
+            explanation: "The ampersand <code>&</code> is the address-of operator in C++."
           },
           {
-            question: "Which dynamic sequence container from STL automatically manages memory resizing?",
-            options: ["std::array", "std::vector", "std::tuple", "std::pair"],
-            answer: 1,
-            explanation: "<code>std::vector</code> is a dynamic array capable of resizing automatically as items are added."
+            question: "Which container provides a dynamic array in C++?",
+            options: ["std::vector", "std::map", "std::set", "std::tuple"],
+            answer: 0,
+            explanation: "<code>std::vector</code> resizes automatically when elements are added."
           }
         ]
       },
 
       java: {
         name: "Java",
-        chips: ["Data Types & Modifiers", "Enhanced For-Loops", "Methods & Overloading", "ArrayList & HashMaps", "Encapsulation & OOP"],
+        chips: ["Data Types", "For-Each", "Overloading", "HashMaps", "Encapsulation"],
         snippets: {
-          variable: `// Strongly typed Java with primitive and reference types\npublic class Main {\n    public static void main(String[] args) {\n        int batchSize = 64;\n        double confidence = 0.985;\n        String framework = "DeepLearning4j";\n        System.out.println(framework + " running batch: " + batchSize);\n    }\n}`,
-          loop: `// Java Enhanced for-loop (for-each)\nimport java.util.ArrayList;\n\npublic class Main {\n    public static void main(String[] args) {\n        int[] layers = {128, 256, 512};\n        for (int neurons : layers) {\n            System.out.println("Dense Layer Neurons: " + neurons);\n        }\n    }\n}`,
-          function: `// Method Overloading in Java\npublic class Main {\n    public static double predict(int input) {\n        return input * 1.5;\n    }\n    public static double predict(double input, double bias) {\n        return (input * 1.5) + bias;\n    }\n    public static void main(String[] args) {\n        System.out.println("Overloaded call: " + predict(10.0, 2.5));\n    }\n}`,
-          datastructure: `// Java Collections: ArrayList & HashMap\nimport java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        HashMap<String, Integer> wordIndex = new HashMap<>();\n        wordIndex.put("neural", 1);\n        wordIndex.put("network", 2);\n        System.out.println("Index of 'neural': " + wordIndex.get("neural"));\n    }\n}`,
-          oop: `// OOP: Encapsulation with Getters and Setters\nclass NeuralLayer {\n    private int units;\n    public NeuralLayer(int units) { this.units = units; }\n    public int getUnits() { return this.units; }\n}\npublic class Main {\n    public static void main(String[] args) {\n        NeuralLayer layer = new NeuralLayer(64);\n        System.out.println("Configured Units: " + layer.getUnits());\n    }\n}`
+          variable: `public class Main {\n    public static void main(String[] args) {\n        int aura = 7777;\n        String handle = "JavaWIZ";\n        System.out.println(handle + " loaded with " + aura + " Aura");\n    }\n}`,
+          loop: `public class Main {\n    public static void main(String[] args) {\n        String[] modules = {"Spring", "Android", "JVM"};\n        for (String mod : modules) {\n            System.out.println("Active module: " + mod);\n        }\n    }\n}`,
+          function: `public class Main {\n    public static int doubleAura(int val) { return val * 2; }\n    public static void main(String[] args) {\n        System.out.println("Double aura: " + doubleAura(2500));\n    }\n}`,
+          datastructure: `import java.util.HashMap;\npublic class Main {\n    public static void main(String[] args) {\n        HashMap<String, Integer> map = new HashMap<>();\n        map.put("ping", 12);\n        map.put("fps", 120);\n        System.out.println("Game stats: " + map);\n    }\n}`,
+          oop: `class Dev {\n    private String name;\n    public Dev(String name) { this.name = name; }\n    public String getStatus() { return this.name + " is shipping code."; }\n}\npublic class Main {\n    public static void main(String[] args) {\n        Dev d = new Dev("Tanishk");\n        System.out.println(d.getStatus());\n    }\n}`
         },
         explanations: {
-          variable: "Java enforces strict typing across **primitive types** (`int`, `double`, `boolean`) and **object references** (`String`, `Integer`).",
-          loop: "Iterate cleanly with the enhanced `for (Type item : collection)` loop or Java Stream API operations.",
-          function: "Java uses class-bound **methods**. It natively supports **method overloading** (multiple methods with the same name but different signatures).",
-          datastructure: "The **Java Collections Framework** provides `ArrayList`, `LinkedList`, `HashMap`, and `HashSet`.",
-          oop: "Java is strictly object-oriented: code resides inside classes, emphasizing **encapsulation** with `private` fields and public accessors."
+          sigma: {
+            variable: "Strong typing ensures no unexpected crashes. Compile once, flex everywhere on the JVM.",
+            loop: "The enhanced for-each loop iterates collections without boilerplate counters.",
+            function: "Method overloading lets you handle multiple signatures cleanly.",
+            datastructure: "HashMaps give you O(1) average lookup times. Zero frame drops.",
+            oop: "Strict encapsulation with private fields keeps your architecture unbreakable."
+          },
+          chill: {
+            variable: "Java requires explicit static typing for both primitives and object references.",
+            loop: "Enhanced for-loops offer concise syntax for arrays and collections.",
+            function: "Methods support overloading based on parameter count and types.",
+            datastructure: "Java Collections provide HashMaps for key-value lookups.",
+            oop: "Encapsulation ensures classes protect internal state using getters and setters."
+          }
         },
         quizzes: [
           {
-            question: "Where must all executable code reside in a Java program?",
-            options: ["In global script files", "Inside a Class definition", "Inside standard header files", "Inside pointers"],
+            question: "Where must executable statements live in Java?",
+            options: ["Global scripts", "Inside a Class definition", "Inside header files", "Inside templates"],
             answer: 1,
-            explanation: "Java is strictly class-based; every method and variable must exist inside a class or interface."
+            explanation: "Java requires all code to exist within a class or interface."
           },
           {
-            question: "Which Java collection is used to store key-value associations?",
-            options: ["ArrayList", "HashSet", "HashMap", "TreeSet"],
-            answer: 2,
-            explanation: "<code>HashMap&lt;K, V&gt;</code> provides map/dictionary lookups using key hashing in Java."
+            question: "Which Java collection maps keys to values?",
+            options: ["ArrayList", "HashMap", "HashSet", "LinkedList"],
+            answer: 1,
+            explanation: "<code>HashMap</code> stores key-value pairs with fast hashing lookups."
           }
         ]
       }
     };
 
     let currentQuizIndex = 0;
+
+    function getRank(a) {
+      if (a < 500) return "Script Kiddie";
+      if (a < 1500) return "Bug Hunter";
+      if (a < 3000) return "10x Rizzler Dev";
+      return "Terminal God";
+    }
+
+    function updateAuraBadge() {
+      const rank = getRank(aura);
+      auraDisplay.textContent = `⚡ ${aura} Aura • [${rank}]`;
+    }
+
+    function changeVibe() {
+      currentVibe = vibeSelect.value;
+      localStorage.setItem(STORAGE_KEY_VIBE, currentVibe);
+      appendMessage(`Vibe switched to <b>${currentVibe === "sigma" ? "🗿 Sigma Mode" : "☕ Chill Dev"}</b>. Ask a question or run some code!`, "bot");
+    }
+
+    function changeLanguage() {
+      currentLang = languageSelect.value;
+      localStorage.setItem(STORAGE_KEY_LANG, currentLang);
+      renderChips();
+      appendMessage(`Switched track to <b>${languageDatabase[currentLang].name}</b>. Let's cook.`, "bot");
+    }
 
     function renderChips() {
       const langData = languageDatabase[currentLang];
@@ -541,23 +685,14 @@ for (let lang of languages) {
       });
     }
 
-    function changeLanguage() {
-      currentLang = languageSelect.value;
-      localStorage.setItem(STORAGE_KEY_LANG, currentLang);
-      renderChips();
-      appendMessage(`Switched active language to <b>${languageDatabase[currentLang].name}</b>. Try the updated chips or ask any question!`, "bot");
-    }
-
-    function buildCodeCard(codeText, langKey) {
-      // If language is JS, enable direct playground runner button; otherwise show transfer for inspection
-      const isRunnable = (currentLang === "javascript");
-      const btnLabel = isRunnable ? "▶ Run in Scratchpad" : "📋 Send to Scratchpad";
-      
+    function buildCodeCard(codeText) {
+      const isJS = (currentLang === "javascript");
+      const label = isJS ? "▶ Execute in Runner" : "📋 Paste to Runner";
       return `
         <div class="code-block-wrapper">
           <div class="code-block-header">
-            <span class="code-lang-tag">${currentLang}</span>
-            <button class="transfer-btn" onclick="sendCodeToPlayground(\`${encodeURIComponent(codeText)}\`, ${isRunnable})">${btnLabel}</button>
+            <span class="code-lang-tag">${currentLang.toUpperCase()}</span>
+            <button class="transfer-btn" onclick="sendCodeToPlayground(\`${encodeURIComponent(codeText)}\`, ${isJS})">${label}</button>
           </div>
           <pre><code>${codeText}</code></pre>
         </div>
@@ -566,16 +701,15 @@ for (let lang of languages) {
 
     function explainTopic(topicKey) {
       const langData = languageDatabase[currentLang];
-      const explanation = langData.explanations[topicKey];
+      const explanation = langData.explanations[currentVibe][topicKey];
       const snippet = langData.snippets[topicKey];
 
-      appendMessage(`Tell me about <b>${topicKey}</b> in ${langData.name}`, "user");
-      
+      appendMessage(`Explain <b>${topicKey}</b> in ${langData.name}`, "user");
       const reply = `
         ${explanation}
-        ${buildCodeCard(snippet, currentLang)}
+        ${buildCodeCard(snippet)}
       `;
-      setTimeout(() => appendMessage(reply, "bot"), 300);
+      setTimeout(() => appendMessage(reply, "bot"), 280);
     }
 
     function sendCodeToPlayground(encodedCode, autoRun) {
@@ -585,7 +719,7 @@ for (let lang of languages) {
       if (autoRun) {
         runCode();
       } else {
-        consoleOutput.textContent = `[Info] Loaded ${languageDatabase[currentLang].name} snippet into the editor. (Browser native execution is active for JavaScript; you can edit or rewrite logic to test in JS!)`;
+        consoleOutput.textContent = `[Info] Loaded ${languageDatabase[currentLang].name} code into the editor. (Browser runner natively executes JS; test and experiment with your logic here!)`;
       }
     }
 
@@ -622,83 +756,32 @@ for (let lang of languages) {
       try {
         const result = new Function(userCode)();
         if (outputBuffer.length > 0) {
-          consoleOutput.textContent = outputBuffer.join("\n");
+          consoleOutput.textContent = outputBuffer.join("\n") + "\n" + asciiMascots.chad;
         } else if (result !== undefined) {
           consoleOutput.textContent = "Returned: " + JSON.stringify(result);
         } else {
-          consoleOutput.textContent = "Code executed cleanly with no direct print output.";
+          consoleOutput.textContent = "Code executed cleanly with 0 bugs. Pure W.";
         }
       } catch (err) {
-        consoleOutput.innerHTML = `<span style="color: #f87171;">⚠️ Runtime Exception: ${err.name} - ${err.message}</span>`;
+        consoleOutput.innerHTML = `<span style="color: #ff0055;">⚠️ Exception Encountered: ${err.name} - ${err.message}</span>\n\n[Roast] Bro wrote broken logic and thought the compiler wouldn't notice. -50 Aura.`;
+        updateAura(-50);
       } finally {
         console.log = originalLog;
       }
     }
 
-    function exportStudyNotes() {
-      const saved = localStorage.getItem(STORAGE_KEY_CHAT);
-      const history = saved ? JSON.parse(saved) : [];
-
-      let markdown = `# CodeBuddy - Multi-Language Study Guide\n\n`;
-      markdown += `Generated: ${new Date().toLocaleDateString()}\n`;
-      markdown += `Active Language: ${languageDatabase[currentLang].name}\n`;
-      markdown += `Quiz Score: ${score} points\n\n`;
-
-      markdown += `## 📚 Core Language Cheatsheets\n\n`;
-      for (const [langKey, langObj] of Object.entries(languageDatabase)) {
-        markdown += `### ${langObj.name.toUpperCase()}\n`;
-        for (const [topic, snip] of Object.entries(langObj.snippets)) {
-          markdown += `#### ${topic.toUpperCase()}\n\`\`\`\n${snip}\n\`\`\`\n\n`;
-        }
-      }
-
-      markdown += `## 💬 Q&A History\n\n`;
-      history.forEach(item => {
-        const cleanText = item.html.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim();
-        const role = item.sender === "user" ? "👤 Student" : "🤖 CodeBuddy";
-        markdown += `**${role}:** ${cleanText}\n\n`;
-      });
-
-      const blob = new Blob([markdown], { type: "text/markdown;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `CodeBuddy_${languageDatabase[currentLang].name}_Notes.md`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+    function updateAura(delta) {
+      aura = Math.max(0, aura + delta);
+      localStorage.setItem(STORAGE_KEY_AURA, aura.toString());
+      updateAuraBadge();
     }
 
-    function loadHistory() {
-      const saved = localStorage.getItem(STORAGE_KEY_CHAT);
-      if (saved) {
-        try {
-          const history = JSON.parse(saved);
-          history.forEach(item => renderMessageElement(item.html, item.sender));
-        } catch (e) {
-          localStorage.removeItem(STORAGE_KEY_CHAT);
-          renderWelcome();
-        }
-      } else {
-        renderWelcome();
-      }
-    }
-
-    function renderWelcome() {
-      appendMessage(`Hi! I'm CodeBuddy. Select a language from the dropdown (Python, JavaScript, C++, Java), tap any topic chip, or test your skills with <b>🎯 Quiz Mode</b>!`, "bot");
-    }
-
-    function renderMessageElement(htmlContent, sender) {
+    function appendMessage(htmlContent, sender) {
       const msgDiv = document.createElement("div");
       msgDiv.className = `msg ${sender}`;
       msgDiv.innerHTML = htmlContent;
       messages.appendChild(msgDiv);
       messages.scrollTop = messages.scrollHeight;
-    }
-
-    function appendMessage(htmlContent, sender) {
-      renderMessageElement(htmlContent, sender);
 
       const saved = localStorage.getItem(STORAGE_KEY_CHAT);
       const history = saved ? JSON.parse(saved) : [];
@@ -706,19 +789,41 @@ for (let lang of languages) {
       localStorage.setItem(STORAGE_KEY_CHAT, JSON.stringify(history));
     }
 
-    function updateScore(delta) {
-      score += delta;
-      localStorage.setItem(STORAGE_KEY_SCORE, score.toString());
-      scoreDisplay.textContent = `Score: ${score}`;
+    function resetChat() {
+      if (confirm("Reset conversation and aura score?")) {
+        localStorage.removeItem(STORAGE_KEY_CHAT);
+        localStorage.removeItem(STORAGE_KEY_AURA);
+        messages.innerHTML = "";
+        aura = 0;
+        updateAuraBadge();
+        renderWelcome();
+      }
     }
 
-    function resetChat() {
-      if (confirm("Reset chat history and score?")) {
-        localStorage.removeItem(STORAGE_KEY_CHAT);
-        localStorage.removeItem(STORAGE_KEY_SCORE);
-        messages.innerHTML = "";
-        score = 0;
-        scoreDisplay.textContent = `Score: 0`;
+    function renderWelcome() {
+      const greeting = currentVibe === "sigma"
+        ? "⚡ Yo! Welcome to <b>CodeBuddy Neon</b>. Pick your language, drop some logic, or enter the <b>🎯 Quiz Arena</b> to farm aura points."
+        : "Welcome to CodeBuddy. Select a programming language from the dropdown or pick a topic below to begin learning.";
+      appendMessage(greeting, "bot");
+    }
+
+    function loadHistory() {
+      const saved = localStorage.getItem(STORAGE_KEY_CHAT);
+      if (saved) {
+        try {
+          const history = JSON.parse(saved);
+          history.forEach(item => {
+            const msgDiv = document.createElement("div");
+            msgDiv.className = `msg ${item.sender}`;
+            msgDiv.innerHTML = item.html;
+            messages.appendChild(msgDiv);
+          });
+          messages.scrollTop = messages.scrollHeight;
+        } catch (e) {
+          localStorage.removeItem(STORAGE_KEY_CHAT);
+          renderWelcome();
+        }
+      } else {
         renderWelcome();
       }
     }
@@ -734,25 +839,28 @@ for (let lang of languages) {
         return;
       }
 
-      // Check for topic keywords against current active language
       const langData = languageDatabase[currentLang];
       let matchedKey = null;
 
       if (query.includes("var") || query.includes("type")) matchedKey = "variable";
       else if (query.includes("loop") || query.includes("for") || query.includes("while")) matchedKey = "loop";
-      else if (query.includes("func") || query.includes("method") || query.includes("lambda")) matchedKey = "function";
+      else if (query.includes("func") || query.includes("lambda") || query.includes("method")) matchedKey = "function";
       else if (query.includes("list") || query.includes("array") || query.includes("dict") || query.includes("map") || query.includes("vector")) matchedKey = "datastructure";
-      else if (query.includes("oop") || query.includes("class") || query.includes("object") || query.includes("inherit")) matchedKey = "oop";
+      else if (query.includes("oop") || query.includes("class") || query.includes("object")) matchedKey = "oop";
 
       if (matchedKey) {
         const reply = `
-          ${langData.explanations[matchedKey]}
-          ${buildCodeCard(langData.snippets[matchedKey], currentLang)}
+          ${langData.explanations[currentVibe][matchedKey]}
+          ${buildCodeCard(langData.snippets[matchedKey])}
         `;
-        setTimeout(() => appendMessage(reply, "bot"), 350);
+        setTimeout(() => appendMessage(reply, "bot"), 300);
       } else {
-        const reply = `I'm tuned to <b>${langData.name}</b>. Try asking about <b>variables</b>, <b>loops</b>, <b>functions</b>, <b>data structures</b>, or <b>OOP classes</b>, or pick from the chips below!`;
-        setTimeout(() => appendMessage(reply, "bot"), 350);
+        const roasts = [
+          "Bro is speaking in pseudocode. Try asking about <b>variables</b>, <b>loops</b>, <b>functions</b>, <b>data structures</b>, or <b>OOP</b>.",
+          "I didn't catch that syntax. Check your spelling or hit one of the quick chips below!"
+        ];
+        const reply = currentVibe === "sigma" ? roasts[0] : roasts[1];
+        setTimeout(() => appendMessage(reply, "bot"), 300);
       }
     }
 
@@ -770,7 +878,7 @@ for (let lang of languages) {
       });
       optionsHtml += '</div>';
 
-      appendMessage(`<b>[${languageDatabase[currentLang].name}] Quiz ${index + 1}/${questions.length}:</b><br>${q.question}${optionsHtml}`, "bot");
+      appendMessage(`<b>[${languageDatabase[currentLang].name}] Arena Question ${index + 1}/${questions.length}:</b><br>${q.question}${optionsHtml}`, "bot");
     }
 
     function submitAnswer(qIndex, selectedOptIndex) {
@@ -780,17 +888,24 @@ for (let lang of languages) {
       buttons.forEach(btn => btn.disabled = true);
 
       if (selectedOptIndex === q.answer) {
-        updateScore(10);
-        appendMessage(`✅ <b>Correct!</b> (+10 pts)<br>${q.explanation}`, "bot");
+        updateAura(500);
+        const praise = currentVibe === "sigma" 
+          ? "🔥 <b>BOOYAH! Flawless Clutch.</b> (+500 Aura)<br>"
+          : "✅ <b>Correct!</b> (+500 Aura)<br>";
+        appendMessage(`${praise}${q.explanation}`, "bot");
       } else {
-        appendMessage(`❌ <b>Not quite!</b> The correct answer was <b>${q.options[q.answer]}</b>.<br>${q.explanation}`, "bot");
+        updateAura(-100);
+        const roast = currentVibe === "sigma"
+          ? `💀 <b>Skill Issue.</b> Correct answer was <b>${q.options[q.answer]}</b>. (-100 Aura)<br>`
+          : `❌ <b>Incorrect.</b> The correct answer was <b>${q.options[q.answer]}</b>.<br>`;
+        appendMessage(`${roast}${q.explanation}`, "bot");
       }
 
       if (qIndex + 1 < questions.length) {
         setTimeout(() => presentQuestion(qIndex + 1), 1000);
       } else {
         setTimeout(() => {
-          appendMessage(`🎉 <b>${languageDatabase[currentLang].name} Quiz Completed!</b> Current total score: <b>${score}</b>. Switch languages or start another quiz round anytime!`, "bot");
+          appendMessage(`🎉 <b>Arena Cleared!</b> Current status: <b>${aura} Aura [${getRank(aura)}]</b>. Switch languages or run another round anytime!`, "bot");
         }, 1000);
       }
     }
@@ -805,7 +920,6 @@ for (let lang of languages) {
       if (e.key === "Enter") handleSend();
     });
 
-    // Initialize UI
     renderChips();
     loadHistory();
   </script>
