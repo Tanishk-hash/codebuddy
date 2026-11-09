@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CodeBuddy - Neon Cyberpunk Edition</title>
+  <!-- Pyodide CDN: In-Browser WebAssembly Python Runtime -->
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js"></script>
   <style>
     :root {
       --neon-cyan: #00f0ff;
@@ -97,12 +99,6 @@
     @keyframes pulse {
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.04); box-shadow: 0 0 18px rgba(255, 0, 127, 0.8); }
-    }
-
-    .rank-tag {
-      font-size: 0.72rem;
-      color: #94a3b8;
-      font-weight: 600;
     }
 
     .tab-nav {
@@ -408,9 +404,7 @@
     <!-- Chat Screen -->
     <div class="tab-content active" id="chatTab">
       <div class="chat-messages" id="messages"></div>
-
       <div class="chip-container" id="chipContainer"></div>
-
       <div class="chat-input-area">
         <input type="text" id="userInput" placeholder="Ask code questions or cook logic..." autocomplete="off" />
         <button id="sendBtn">Send</button>
@@ -421,17 +415,20 @@
     <div class="tab-content" id="playgroundTab">
       <div class="playground-area">
         <div class="editor-label">
-          <span>⚡ Live Browser Engine (Test your logic)</span>
+          <span id="runnerEngineLabel">⚡ Active Runtime: Python (WebAssembly Pyodide)</span>
           <button id="runBtn" onclick="runCode()">▶ Execute</button>
         </div>
-        <textarea id="codeEditor">// Test your logic & earn aura!
-let aura = 1000;
-for (let i = 1; i <= 3; i++) {
-  console.log(`Clutch round ${i}: Aura boosted to ${aura * i}`);
+        <textarea id="codeEditor"># Python In-Browser Sandbox
+model_config = {
+    "architecture": "CNN",
+    "epochs": 25,
+    "layers": [64, 128, 256]
 }
+model_config["layers"].append(512)
+print("Config:", model_config)
 </textarea>
         <div class="editor-label">Terminal Console:</div>
-        <div class="console-output" id="consoleOutput">Terminal idle. Hit 'Execute' to run code...</div>
+        <div class="console-output" id="consoleOutput">Terminal initialized. Hit 'Execute' to run your code!</div>
       </div>
     </div>
 
@@ -447,6 +444,7 @@ for (let i = 1; i <= 3; i++) {
     const languageSelect = document.getElementById("languageSelect");
     const vibeSelect = document.getElementById("vibeSelect");
     const chipContainer = document.getElementById("chipContainer");
+    const runnerEngineLabel = document.getElementById("runnerEngineLabel");
 
     const STORAGE_KEY_CHAT = "codebuddy_chat_history";
     const STORAGE_KEY_AURA = "codebuddy_aura_points";
@@ -461,15 +459,33 @@ for (let i = 1; i <= 3; i++) {
     let aura = parseInt(localStorage.getItem(STORAGE_KEY_AURA)) || 0;
     updateAuraBadge();
 
+    // Pyodide WebAssembly initialization
+    let pyodideInstance = null;
+    let pyodideLoading = false;
+
+    async function initPyodide() {
+      if (pyodideInstance || pyodideLoading) return;
+      pyodideLoading = true;
+      try {
+        runnerEngineLabel.textContent = "⚡ Loading Python WebAssembly Engine...";
+        pyodideInstance = await loadPyodide();
+        runnerEngineLabel.textContent = "⚡ Active Runtime: Python (Pyodide Ready)";
+      } catch (err) {
+        runnerEngineLabel.textContent = "⚡ Python Engine Failed to Load (Check internet connection)";
+      } finally {
+        pyodideLoading = false;
+      }
+    }
+
+    if (currentLang === "python") {
+      initPyodide();
+    }
+
     const asciiMascots = {
       chad: `
   (\\__/) 
   (•ㅅ•)  [W DEV STATUS: ACTIVE]
  / 　 づ
-      `,
-      fire: `
-  ▲
- ▲ ▲  [BOOYAH! AURA INCREASED]
       `
     };
 
@@ -481,14 +497,14 @@ for (let i = 1; i <= 3; i++) {
           variable: `# Clean typing\nuser = "SigmaDev"\naura = 9999\nis_clutch = True\nprint(f"{user} holding {aura} Aura!")`,
           loop: `# List comprehension = Infinite Aura\nsquares = [x**2 for x in range(1, 6)]\nprint("Computed matrix:", squares)`,
           function: `# Lambda & keyword arguments\ncalc_aura = lambda base, mult: base * mult\nprint("Final Aura:", calc_aura(500, 2))`,
-          datastructure: `# Python Dict + List\nstats = {"player": "Tanishk", "rank": "Terminal God", "skills": ["AI", "Python"]}\nprint("Player card:", stats)`,
+          datastructure: `# Python Lists & Dictionaries\nmodel_config = {\n    "architecture": "CNN",\n    "epochs": 25,\n    "layers": [64, 128, 256]\n}\nmodel_config["layers"].append(512)\nprint("Config:", model_config)`,
           oop: `class CodeGigachad:\n    def __init__(self, alias):\n        self.alias = alias\n    def clutch(self):\n        return f"{self.alias} just dropped a zero-bug commit!"\n\ndev = CodeGigachad("Tanishk")\nprint(dev.clutch())`
         },
         explanations: {
           sigma: {
             variable: "Variables are your aura stash. Python uses dynamic typing, so you don't waste time declaring types. Pure efficiency.",
             loop: "Loops repeat operations so you don't code like an NPC. List comprehensions give you +200 developer aura on the spot.",
-            function: "Functions are reusable logic packages. Writing clean functions means you never repeat yourself like an amateur.",
+            function: "Functions are reusable logic packages. Writing clean functions means you never repeat yourself.",
             datastructure: "Lists and Dicts are your inventory backpack. Fast lookups, zero lag.",
             oop: "OOP classes let you instantiate blueprints. You're building the game, not playing in it."
           },
@@ -520,8 +536,8 @@ for (let i = 1; i <= 3; i++) {
         name: "JavaScript",
         chips: ["Variables & Scope", "Array Methods", "Arrow Functions", "Objects", "Classes"],
         snippets: {
-          variable: `// Never use var in 2026\nconst player = "SigmaCoder";\nlet aura = 2500;\nconsole.log(\`\${player} has \${aura} Aura\`);`,
-          loop: `// Higher-order W methods\nconst nums = [10, 20, 30, 40];\nconst boosted = nums.map(n => n * 2);\nconsole.log("Boosted array:", boosted);`,
+          variable: `// Modern Block Scope\nconst player = "SigmaCoder";\nlet aura = 2500;\nconsole.log(\`\${player} has \${aura} Aura\`);`,
+          loop: `// Higher-order methods\nconst nums = [10, 20, 30, 40];\nconst boosted = nums.map(n => n * 2);\nconsole.log("Boosted array:", boosted);`,
           function: `// Clean arrow syntax\nconst dropClutch = (score) => score >= 90 ? "GigaChad" : "Keep Grinding";\nconsole.log(dropClutch(95));`,
           datastructure: `// Object destructuring\nconst hero = { tag: "Apex", level: 99 };\nconst { tag, level } = hero;\nconsole.log(\`Hero: \${tag} @ Level \${level}\`);`,
           oop: `class CyberRunner {\n  constructor(handle) { this.handle = handle; }\n  execute() { return \`\${this.handle} running root exploits.\`; }\n}\nconst runner = new CyberRunner("Neo");\nconsole.log(runner.execute());`
@@ -529,9 +545,9 @@ for (let i = 1; i <= 3; i++) {
         explanations: {
           sigma: {
             variable: "Using `var` is negative 1000 aura. Real devs run `const` by default and `let` only when mutability is mandatory.",
-            loop: "Stop writing old for-loops like an NPC. Use `.map()`, `.filter()`, and `.reduce()` for max elegance.",
+            loop: "Use `.map()`, `.filter()`, and `.reduce()` for clean, functional iterations.",
             function: "Arrow functions give you concise syntax and lexical `this` binding. Straight W.",
-            datastructure: "JavaScript Objects and Arrays hold your data state. Destructuring saves you 10 keystrokes every line.",
+            datastructure: "JavaScript Objects and Arrays hold your data state. Destructuring saves you typing.",
             oop: "Modern ES6 classes wrap JavaScript prototypes into clean syntax."
           },
           chill: {
@@ -562,9 +578,9 @@ for (let i = 1; i <= 3; i++) {
         name: "C++",
         chips: ["Pointers & Types", "Range Loops", "Pass by Ref", "Vectors & STL", "Classes"],
         snippets: {
-          variable: `// Hardcore memory control\n#include <iostream>\nusing namespace std;\n\nint main() {\n    int aura = 5000;\n    int* ptr = &aura; // Direct memory address\n    cout << "Aura at memory: " << ptr << " = " << *ptr << endl;\n    return 0;\n}`,
+          variable: `// Hardcore memory control\n#include <iostream>\nusing namespace std;\n\nint main() {\n    int aura = 5000;\n    int* ptr = &aura;\n    cout << "Aura address: " << ptr << " = " << *ptr << endl;\n    return 0;\n}`,
           loop: `// Modern range-based for loop\n#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    vector<int> stats = {100, 250, 500};\n    for (const auto& s : stats) cout << "Stat: " << s << endl;\n    return 0;\n}`,
-          function: `// Pass-by-reference avoids copying\n#include <iostream>\nusing namespace std;\n\nvoid boost(int &val) { val += 1000; }\n\nint main() {\n    int score = 400;\n    boost(score);\n    cout << "Boosted: " << score << endl;\n    return 0;\n}`,
+          function: `// Pass-by-reference\n#include <iostream>\nusing namespace std;\n\nvoid boost(int &val) { val += 1000; }\n\nint main() {\n    int score = 400;\n    boost(score);\n    cout << "Boosted: " << score << endl;\n    return 0;\n}`,
           datastructure: `// STL Vector\n#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    vector<string> stack = {"Kernel", "Drivers", "AI"};\n    stack.push_back("Shader");\n    cout << "Top layer: " << stack.back() << endl;\n    return 0;\n}`,
           oop: `// C++ Class\n#include <iostream>\nusing namespace std;\n\nclass CyberBot {\npublic:\n    void boot() { cout << "Systems fully operational." << endl; }\n};\n\nint main() {\n    CyberBot bot;\n    bot.boot();\n    return 0;\n}`
         },
@@ -572,9 +588,9 @@ for (let i = 1; i <= 3; i++) {
           sigma: {
             variable: "C++ gives you raw metal control. Direct pointer manipulation separates true engineers from casuals.",
             loop: "Range-based loops iterate through STL sequences with zero unnecessary index overhead.",
-            function: "Pass-by-reference `&` ensures zero-copy speed. Maximum performance, zero memory waste.",
+            function: "Pass-by-reference `&` ensures zero-copy speed. Maximum performance.",
             datastructure: "The C++ Standard Template Library (`std::vector`) gives you peak execution efficiency.",
-            oop: "Encapsulation with `private` and `public` specifiers protects your memory internals."
+            oop: "Encapsulation with `private` and `public` specifiers protects memory internals."
           },
           chill: {
             variable: "C++ is statically typed with explicit memory access using pointers and references.",
@@ -612,11 +628,11 @@ for (let i = 1; i <= 3; i++) {
         },
         explanations: {
           sigma: {
-            variable: "Strong typing ensures no unexpected crashes. Compile once, flex everywhere on the JVM.",
+            variable: "Strong typing ensures no unexpected crashes. Compile once, run everywhere on the JVM.",
             loop: "The enhanced for-each loop iterates collections without boilerplate counters.",
             function: "Method overloading lets you handle multiple signatures cleanly.",
-            datastructure: "HashMaps give you O(1) average lookup times. Zero frame drops.",
-            oop: "Strict encapsulation with private fields keeps your architecture unbreakable."
+            datastructure: "HashMaps give you O(1) average lookup times.",
+            oop: "Strict encapsulation with private fields keeps architecture clean."
           },
           chill: {
             variable: "Java requires explicit static typing for both primitives and object references.",
@@ -667,6 +683,16 @@ for (let i = 1; i <= 3; i++) {
       currentLang = languageSelect.value;
       localStorage.setItem(STORAGE_KEY_LANG, currentLang);
       renderChips();
+
+      if (currentLang === "python") {
+        runnerEngineLabel.textContent = "⚡ Active Runtime: Python (WebAssembly Pyodide)";
+        initPyodide();
+      } else if (currentLang === "javascript") {
+        runnerEngineLabel.textContent = "⚡ Active Runtime: JavaScript (Native Browser V8)";
+      } else {
+        runnerEngineLabel.textContent = `⚡ Active Reference: ${languageDatabase[currentLang].name} (Syntax Inspector)`;
+      }
+
       appendMessage(`Switched track to <b>${languageDatabase[currentLang].name}</b>. Let's cook.`, "bot");
     }
 
@@ -686,13 +712,11 @@ for (let i = 1; i <= 3; i++) {
     }
 
     function buildCodeCard(codeText) {
-      const isJS = (currentLang === "javascript");
-      const label = isJS ? "▶ Execute in Runner" : "📋 Paste to Runner";
       return `
         <div class="code-block-wrapper">
           <div class="code-block-header">
             <span class="code-lang-tag">${currentLang.toUpperCase()}</span>
-            <button class="transfer-btn" onclick="sendCodeToPlayground(\`${encodeURIComponent(codeText)}\`, ${isJS})">${label}</button>
+            <button class="transfer-btn" onclick="sendCodeToPlayground(\`${encodeURIComponent(codeText)}\`)">▶ Send to Runner</button>
           </div>
           <pre><code>${codeText}</code></pre>
         </div>
@@ -712,15 +736,11 @@ for (let i = 1; i <= 3; i++) {
       setTimeout(() => appendMessage(reply, "bot"), 280);
     }
 
-    function sendCodeToPlayground(encodedCode, autoRun) {
+    function sendCodeToPlayground(encodedCode) {
       const code = decodeURIComponent(encodedCode);
       codeEditor.value = code;
       switchTab('playground');
-      if (autoRun) {
-        runCode();
-      } else {
-        consoleOutput.textContent = `[Info] Loaded ${languageDatabase[currentLang].name} code into the editor. (Browser runner natively executes JS; test and experiment with your logic here!)`;
-      }
+      runCode();
     }
 
     function switchTab(tab) {
@@ -742,31 +762,68 @@ for (let i = 1; i <= 3; i++) {
       }
     }
 
-    function runCode() {
+    // Live Execution Engine: Python (Pyodide) or JavaScript (V8)
+    async function runCode() {
       const userCode = codeEditor.value;
       consoleOutput.innerHTML = "";
-      let outputBuffer = [];
 
-      const originalLog = console.log;
-      console.log = function(...args) {
-        outputBuffer.push(args.map(a => (typeof a === 'object' ? JSON.stringify(a) : a)).join(" "));
-        originalLog.apply(console, args);
-      };
-
-      try {
-        const result = new Function(userCode)();
-        if (outputBuffer.length > 0) {
-          consoleOutput.textContent = outputBuffer.join("\n") + "\n" + asciiMascots.chad;
-        } else if (result !== undefined) {
-          consoleOutput.textContent = "Returned: " + JSON.stringify(result);
-        } else {
-          consoleOutput.textContent = "Code executed cleanly with 0 bugs. Pure W.";
+      if (currentLang === "python") {
+        if (!pyodideInstance) {
+          consoleOutput.textContent = "⏳ Pyodide WebAssembly Python runtime is initializing... please wait 2-3 seconds and hit Execute again.";
+          await initPyodide();
+          return;
         }
-      } catch (err) {
-        consoleOutput.innerHTML = `<span style="color: #ff0055;">⚠️ Exception Encountered: ${err.name} - ${err.message}</span>\n\n[Roast] Bro wrote broken logic and thought the compiler wouldn't notice. -50 Aura.`;
-        updateAura(-50);
-      } finally {
-        console.log = originalLog;
+
+        try {
+          // Redirect standard Python sys.stdout to a buffer
+          pyodideInstance.runPython(`
+import sys
+import io
+sys_out_buffer = io.StringIO()
+sys.stdout = sys_out_buffer
+          `);
+
+          // Run the user's actual Python code
+          pyodideInstance.runPython(userCode);
+
+          // Extract standard output string
+          const pythonOutput = pyodideInstance.runPython("sys_out_buffer.getvalue()");
+          
+          if (pythonOutput && pythonOutput.trim().length > 0) {
+            consoleOutput.textContent = pythonOutput + "\n" + asciiMascots.chad;
+          } else {
+            consoleOutput.textContent = "Python code ran cleanly with 0 output.\n" + asciiMascots.chad;
+          }
+        } catch (err) {
+          consoleOutput.innerHTML = `<span style="color: #ff0055;">⚠️ Python Runtime Error:\n${err.message}</span>\n\n[Roast] Bro broke the Python runtime. -50 Aura.`;
+          updateAura(-50);
+        }
+
+      } else if (currentLang === "javascript") {
+        let outputBuffer = [];
+        const originalLog = console.log;
+        console.log = function(...args) {
+          outputBuffer.push(args.map(a => (typeof a === 'object' ? JSON.stringify(a) : a)).join(" "));
+          originalLog.apply(console, args);
+        };
+
+        try {
+          const result = new Function(userCode)();
+          if (outputBuffer.length > 0) {
+            consoleOutput.textContent = outputBuffer.join("\n") + "\n" + asciiMascots.chad;
+          } else if (result !== undefined) {
+            consoleOutput.textContent = "Returned: " + JSON.stringify(result);
+          } else {
+            consoleOutput.textContent = "JavaScript executed cleanly with 0 bugs. Pure W.";
+          }
+        } catch (err) {
+          consoleOutput.innerHTML = `<span style="color: #ff0055;">⚠️ Exception Encountered: ${err.name} - ${err.message}</span>\n\n[Roast] Bro wrote broken logic. -50 Aura.`;
+          updateAura(-50);
+        } finally {
+          console.log = originalLog;
+        }
+      } else {
+        consoleOutput.textContent = `[Info] Loaded ${languageDatabase[currentLang].name} code. (Browser WebAssembly currently executes Python and JavaScript natively; C++/Java compilers require backend environments).`;
       }
     }
 
